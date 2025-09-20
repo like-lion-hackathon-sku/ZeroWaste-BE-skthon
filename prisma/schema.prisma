@@ -104,10 +104,9 @@ model Restaurant {
   telephone     String       @db.VarChar(15)
   mapx          Int?
   mapy          Int?
-  isSponsored   Boolean      @default(false) @map("is_sponsored")
   createdAt     DateTime     @default(now()) @map("created_at")
-  updatedAt     DateTime     @updatedAt @map("updated_at")
-  feedback      String       @db.Text
+  updatedAt     DateTime?    @updatedAt @map("updated_at")
+  feedback      String?      @db.Text
 
   favorite      Favorite[]
   review        Review[]
@@ -148,9 +147,9 @@ model Review {
   restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   restaurantId  Int         @map("restaurant_id")
   content       String      @db.Text
-  feedback      String      @db.Text
+  feedback      String?     @db.Text
   createdAt     DateTime    @default(now()) @map("created_at")
-  updatedAt     DateTime    @updatedAt @map("updated_at")
+  updatedAt     DateTime?   @updatedAt @map("updated_at")
 
   reviewPhoto   ReviewPhoto[]
   reviewMenu    ReviewMenu[]
