@@ -1,3 +1,4 @@
+// 위치: src/restaurants/dto/request/restaurants.request.dto.js
 class BadRequestError extends Error {
   constructor(message) {
     super(message);
@@ -12,8 +13,7 @@ function toPosInt(v, d) {
 
 /** bbox= "minX,minY,maxX,maxY" 파싱 */
 function parseBbox(bboxStr) {
-  if (!bboxStr) throw new BadRequestError("bbox is required");
-  const parts = String(bboxStr)
+  const parts = String(bboxStr ?? "")
     .split(",")
     .map((v) => +v);
   if (parts.length !== 4 || parts.some((n) => !Number.isFinite(n))) {
@@ -25,15 +25,38 @@ function parseBbox(bboxStr) {
   return { minX, minY, maxX, maxY };
 }
 
-/** 주변 식당 검색 쿼리 파서 */
+/** 주변 식당 검색 쿼리 파서
+ *  - 우선순위 1) bbox
+ *  - 우선순위 2) lat,lng,(radiusKm)
+ */
 export function parseNearbyQuery(query) {
-  const bbox = parseBbox(query.bbox);
   const page = toPosInt(query.page, 1);
   const size = toPosInt(query.size, 20);
   const category = query.category
     ? String(query.category).toUpperCase()
     : undefined;
-  return { bbox, page, size, category };
+
+  if (query.bbox) {
+    const bbox = parseBbox(query.bbox);
+    return { mode: "bbox", bbox, page, size, category };
+  }
+
+  const lat = Number(query.lat);
+  const lng = Number(query.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    throw new BadRequestError("either 'bbox' or 'lat,lng' is required");
+  }
+  // 기본 반경: 2km (0.1~20km 제한)
+  let radiusKm = Number(query.radiusKm ?? 2);
+  radiusKm = Math.min(Math.max(radiusKm || 2, 0.1), 20);
+
+  return {
+    mode: "center",
+    center: { lat, lng, radiusKm },
+    page,
+    size,
+    category,
+  };
 }
 
 /** :restaurantId 파서 */
@@ -54,3 +77,5 @@ export function parseListReviewsQuery(query) {
     : "LATEST";
   return { page, size, orderBy };
 }
+
+export { BadRequestError };

@@ -183,12 +183,11 @@
 //       mapy: true,
 //       createdAt: true,
 //       updatedAt: true,
-//       // businessCertUrl: true, // 있으면
 //     },
 //   });
 //   if (!base) return null;
 
-//   const [menus /*, photos*/] = await Promise.all([
+//   const [menus] = await Promise.all([
 //     prisma.menu.findMany({
 //       where: { restaurantId },
 //       select: {

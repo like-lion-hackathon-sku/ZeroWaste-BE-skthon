@@ -1,6 +1,5 @@
 // // src / biz / restaurants / service / restaurants.service.js
 // import { PrismaClient } from "../../../generated/prisma/index.js";
-// //import fetch from "node-fetch";
 
 // const g = globalThis;
 // export const prisma = g.__fwzmPrisma ?? new PrismaClient();

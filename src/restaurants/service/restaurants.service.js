@@ -1,12 +1,22 @@
+// 위치: src/restaurants/service/restaurants.service.js
 import * as repo from "../repository/restaurants.repository.js";
 
-/** bbox 내 식당 검색 */
-export async function searchNearbyRestaurants({ bbox, page, size, category }) {
+/** 주변 식당 검색 (bbox OR center) */
+export async function searchNearbyRestaurants({
+  mode,
+  bbox,
+  center,
+  page,
+  size,
+  category,
+}) {
   const offset = (page - 1) * size;
+
   const [items, total] = await Promise.all([
-    repo.findNearbyRestaurants({ bbox, category, offset, limit: size }),
-    repo.countNearbyRestaurants({ bbox, category }),
+    repo.findNearbyRestaurants({ bbox, center, category, offset, limit: size }),
+    repo.countNearbyRestaurants({ bbox, center, category }),
   ]);
+
   return { page, size, total, items };
 }
 

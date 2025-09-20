@@ -1,3 +1,4 @@
+// 위치: src/restaurants/router/restaurants.router.js
 import { Router } from "express";
 import {
   searchRestaurantsCtrl,
@@ -24,19 +25,29 @@ function onlyDigits404(req, res, next) {
  *   get:
  *     tags: [Restaurants]
  *     summary: 주변 식당 검색
- *     description: 지도의 bbox(경계 영역)과 카테고리, 페이지 정보를 기준으로 식당 목록을 조회합니다.
+ *     description: bbox 또는 중심 좌표(lat,lng)로 주변 식당을 조회합니다.
  *     parameters:
  *       - in: query
  *         name: bbox
- *         required: true
  *         schema: { type: string }
- *         description: '검색 영역 (예: "126.97,37.56,126.99,37.58" = minX,minY,maxX,maxY)'
+ *         description: '대체 가능: "minX,minY,maxX,maxY" (도 단위)'
+ *       - in: query
+ *         name: lat
+ *         schema: { type: number, format: double }
+ *         description: 중심 위도 (bbox 미사용 시)
+ *       - in: query
+ *         name: lng
+ *         schema: { type: number, format: double }
+ *         description: 중심 경도 (bbox 미사용 시)
+ *       - in: query
+ *         name: radiusKm
+ *         schema: { type: number, default: 2 }
+ *         description: 반경(km) - 0.1 ~ 20 (bbox 미사용 시)
  *       - in: query
  *         name: category
  *         schema:
  *           type: string
  *           enum: [KOREAN, JAPANESE, CHINESE, WESTERN, FASTFOOD, CAFE, ETC]
- *         description: 식당 카테고리(선택)
  *       - in: query
  *         name: page
  *         schema: { type: integer, default: 1 }
