@@ -18,8 +18,8 @@ export async function addFavorite({ userId, restaurantId }) {
     throw err;
   }
 
-  const created = await favRepo.ensureFavorite(userId, rid);
-  return { restaurantId: rid, created };
+  const { created, id } = await favRepo.ensureFavorite(userId, rid);
+  return { restaurantId: rid, created, id };
 }
 
 /* 즐겨찾기 삭제 서비스 */
