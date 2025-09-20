@@ -83,6 +83,7 @@ export function listRestaurantReviews({
         id: r.id,
         userId: r.userId,
         nickname: r.user?.nickname ?? null,
+        score: r.score,
         leftoverRate: r.reviewMenu.length
           ? Math.round(
               (r.reviewMenu.reduce((s, m) => s + (m.leftoverRatio ?? 0), 0) /
