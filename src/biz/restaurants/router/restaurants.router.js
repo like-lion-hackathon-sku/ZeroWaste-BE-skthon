@@ -42,7 +42,7 @@ r.use(authenticateAccessToken, verifyUserIsActive);
  *       200:
  *         description: 검색 성공
  */
-r.get("/restaurants/search", searchRestaurantCandidatesCtrl);
+r.get("/search", searchRestaurantCandidatesCtrl);
 
 /**
  * @swagger
@@ -87,7 +87,7 @@ r.get("/restaurants/search", searchRestaurantCandidatesCtrl);
  *       201:
  *         description: 등록 성공
  */
-r.post("/restaurants", createRestaurantByBizCtrl);
+r.post("/", createRestaurantByBizCtrl);
 
 /**
  * @swagger
@@ -126,7 +126,7 @@ r.post("/restaurants", createRestaurantByBizCtrl);
  *       200:
  *         description: 수정 성공
  */
-r.put("/restaurants", updateRestaurantByBizCtrl);
+r.put("/", updateRestaurantByBizCtrl);
 
 /**
  * @swagger
@@ -153,7 +153,7 @@ r.put("/restaurants", updateRestaurantByBizCtrl);
  *       200:
  *         description: 삭제 성공
  */
-r.delete("/restaurants", deleteRestaurantByBizCtrl);
+r.delete("/", deleteRestaurantByBizCtrl);
 
 /**
  * @swagger
@@ -179,7 +179,7 @@ r.delete("/restaurants", deleteRestaurantByBizCtrl);
  *       200:
  *         description: 조회 성공
  */
-r.get("/restaurants", listMyBizRestaurantsCtrl);
+r.get("/", listMyBizRestaurantsCtrl);
 
 /**
  * @swagger
@@ -203,6 +203,6 @@ r.get("/restaurants", listMyBizRestaurantsCtrl);
  *       404:
  *         description: 식당 없음
  */
-r.get("/restaurants/:restaurantId", getBizRestaurantDetailCtrl);
+r.get("/:restaurantId", getBizRestaurantDetailCtrl);
 
 export default r;
