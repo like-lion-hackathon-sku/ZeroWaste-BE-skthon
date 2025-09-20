@@ -16,6 +16,7 @@ export const NearbyRestaurantsSuccess = {
       items: (data.items ?? []).map((r) => ({
         id: r.id,
         name: r.name,
+        score: r.score,
         category: r.category,
         address: r.address,
         mapx: r.mapx,
@@ -32,6 +33,7 @@ export const RestaurantDetailSuccess = {
     ok({
       id: d.id,
       name: d.name,
+      score: r.score,
       category: d.category,
       address: d.address,
       telephone: d.telephone,
