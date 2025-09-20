@@ -1,4 +1,5 @@
 // service
+import { getRestaurantBenefitsResponseDto } from "../dto/response/restaurants.response.dto.js";
 import * as repo from "../repository/restaurants.repository.js";
 
 /** 식당 목록 조회 */
@@ -37,3 +38,9 @@ export async function getRestaurantReviews({
   ]);
   return { page, size, total, items };
 }
+
+export const getRestaurantBenefits = async (data) => {
+  const benefits = await repo.getRestaurantBenefitsById(data);
+  console.log(benefits);
+  return getRestaurantBenefitsResponseDto(benefits);
+};
