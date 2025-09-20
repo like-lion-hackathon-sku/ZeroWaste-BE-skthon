@@ -33,7 +33,7 @@ export const RestaurantDetailSuccess = {
     ok({
       id: d.id,
       name: d.name,
-      score: r.score,
+      score: d.score,
       category: d.category,
       address: d.address,
       telephone: d.telephone,
@@ -57,7 +57,6 @@ export const RestaurantReviewsSuccess = {
     ok({
       page: data.page,
       size: data.size,
-      score: r.score,
       total: data.total,
       items: data.items ?? [],
     }),
