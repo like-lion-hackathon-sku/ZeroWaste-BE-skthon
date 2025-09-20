@@ -5,7 +5,7 @@ import stampsRouter from "../stamps/router/stamps.router.js";
 
 const router = express.Router({ mergeParams: true });
 
-router.use("/restaurants", restaurantsRouter);
+//router.use("/restaurants", restaurantsRouter);
 router.use("/reviews", reviewsRouter);
 router.use("/stamps", stampsRouter);
 
