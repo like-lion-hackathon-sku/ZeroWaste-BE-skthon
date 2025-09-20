@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import { setupSwagger } from "./config/swagger.js";
+import { initEventEmitter } from "./config/eventEmitter.js";
 import { setupCommonError, setupExpress } from "./config/express.js";
 import router from "./router/router.js";
 import { initS3 } from "./config/s3.js";
@@ -13,6 +14,10 @@ const port = process.env.PORT;
  *  AWS S3 설정
  */
 export const s3 = initS3();
+/**
+ * EventEmitter 설정
+ */
+export const eventEmitter = initEventEmitter();
 
 setupSwagger(app);
 app.use("/api", router); // 라우터 설정`
