@@ -4,6 +4,7 @@ import {
   searchRestaurantsCtrl,
   getRestaurantDetailCtrl,
   handleGetRestaurantReviews,
+  handleGetRestaurantBenefits,
 } from "../controller/restaurants.controller.js";
 import { identifyAccessToken } from "../../auth/middleware/auth.middleware.js";
 
@@ -27,7 +28,7 @@ r.get(
   "/:restaurantId/detail",
   onlyDigits404,
   identifyAccessToken,
-  getRestaurantDetailCtrl,
+  getRestaurantDetailCtrl
 );
 
 /** 리뷰 조회 */
@@ -35,7 +36,9 @@ r.get(
   "/:restaurantId/reviews",
   onlyDigits404,
   identifyAccessToken,
-  handleGetRestaurantReviews,
+  handleGetRestaurantReviews
 );
+
+r.get("/:restaurantId/benefits", handleGetRestaurantBenefits);
 
 export default r;
