@@ -1,4 +1,3 @@
-// 위치 : src / restaurants / dto / response / restaurants.response.dto.js
 function ok(success) {
   return { resultType: "SUCCESS", error: null, success };
 }
