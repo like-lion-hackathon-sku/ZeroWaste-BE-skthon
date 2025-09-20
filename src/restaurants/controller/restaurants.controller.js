@@ -1,6 +1,6 @@
-// controller
+// src/restaurants/controller/restaurants.controller.js
 import { StatusCodes } from "http-status-codes";
-import { getRestaurantBenefits } from "../service/restaurants.service.js";
+import * as svc from "../service/restaurants.service.js"; // ✅ 누락된 import 추가
 import {
   parseNearbyQuery,
   parseRestaurantIdParam,
@@ -77,9 +77,14 @@ export const handleGetRestaurantReviews = async (req, res, next) => {
   }
 };
 
+/** 스탬프/혜택 조회 */
 export const handleGetRestaurantBenefits = async (req, res, next) => {
-  const benefits = await getRestaurantBenefits(
-    getRestaurantBenefitsRequestDto(req.params)
-  );
-  res.status(StatusCodes.OK).success(benefits);
+  try {
+    const dto = getRestaurantBenefitsRequestDto(req.params);
+    // svc.getRestaurantBenefits 는 이미 DTO 형태를 리턴하고 있으므로 그대로 JSON으로 내려줌
+    const benefits = await svc.getRestaurantBenefits(dto);
+    return res.status(StatusCodes.OK).json(benefits); // ✅ .success() -> .json()
+  } catch (e) {
+    next(e);
+  }
 };
