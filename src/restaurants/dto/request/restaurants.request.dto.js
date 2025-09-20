@@ -1,4 +1,3 @@
-// 위치: src / restaurants / dto / request / restaurants.request.dto.js
 class BadRequestError extends Error {
   constructor(message) {
     super(message);
@@ -11,31 +10,14 @@ function toPosInt(v, d) {
   return Number.isFinite(n) && n > 0 ? n : d;
 }
 
-/** bbox= "minX,minY,maxX,maxY" 파싱 */
-function parseBbox(bboxStr) {
-  if (!bboxStr) throw new BadRequestError("bbox is required");
-  const parts = String(bboxStr)
-    .split(",")
-    .map((v) => +v);
-  if (parts.length !== 4 || parts.some((n) => !Number.isFinite(n))) {
-    throw new BadRequestError("bbox must be 'minX,minY,maxX,maxY'");
-  }
-  const [minX, minY, maxX, maxY] = parts;
-  if (minX >= maxX || minY >= maxY)
-    throw new BadRequestError("bbox is invalid");
-  return { minX, minY, maxX, maxY };
-}
-
 /** 주변 식당 검색 쿼리 파서 */
 export function parseNearbyQuery(query) {
-  const bbox = parseBbox(query.bbox);
   const page = toPosInt(query.page, 1);
   const size = toPosInt(query.size, 20);
-  // FoodCategory enum 오타(JAPAESE) 가능성 → 엄격검증 대신 대문자만 전달
   const category = query.category
     ? String(query.category).toUpperCase()
     : undefined;
-  return { bbox, page, size, category };
+  return { page, size, category };
 }
 
 /** :restaurantId 파서 */

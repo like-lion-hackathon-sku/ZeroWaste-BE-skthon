@@ -122,7 +122,7 @@ export const refresh = async (cookies) => {
     email: user.email,
     nickname: user.nickname,
     isCompleted: user.isCompleted,
-    profileImage: user.image,
+    profileImage: user.profile,
     role: user.role,
   };
   const tokens = {

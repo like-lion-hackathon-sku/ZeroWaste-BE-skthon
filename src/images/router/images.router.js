@@ -1,9 +1,8 @@
 import express from "express";
+import { handleGetPhotoUrl } from "../controller/images.controller.js";
 
 const router = express.Router({ mergeParams: true });
 
-router.get("/", (req, res) => {
-  res.send("images");
-});
+router.get("/:fileType/:fileName", handleGetPhotoUrl);
 
 export default router;

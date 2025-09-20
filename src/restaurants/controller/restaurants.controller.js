@@ -11,11 +11,11 @@ import {
   RestaurantReviewsSuccess,
 } from "../dto/response/restaurants.response.dto.js";
 
-/** 주변 식당 검색 */
+/** DB 기준 식당 목록 조회 */
 export const searchRestaurantsCtrl = async (req, res, next) => {
   try {
     const q = parseNearbyQuery(req.query);
-    const data = await svc.searchNearbyRestaurants(q);
+    const data = await svc.searchRestaurants(q);
     return res.status(StatusCodes.OK).json(NearbyRestaurantsSuccess.ok(data));
   } catch (e) {
     if (e.name === "BadRequestError") {

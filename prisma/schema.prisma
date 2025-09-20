@@ -161,16 +161,17 @@ model Menu {
 }
 
 model Review {
-  id           Int        @id @default(autoincrement())
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       Int        @map("user_id")
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  restaurantId Int        @map("restaurant_id")
-  content      String     @db.Text
-  feedback     String?    @db.Text
-  score        Float
-  createdAt    DateTime   @default(now()) @map("created_at")
-  updatedAt    DateTime?  @updatedAt @map("updated_at")
+  id            Int         @id @default(autoincrement())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        Int         @map("user_id")
+  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantId  Int         @map("restaurant_id")
+  content       String      @db.Text
+  feedback      String?     @db.Text
+  score         Float
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime?   @updatedAt @map("updated_at")
+
 
   reviewPhoto        ReviewPhoto[]
   reviewMenu         ReviewMenu[]
