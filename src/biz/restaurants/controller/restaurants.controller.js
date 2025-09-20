@@ -44,7 +44,6 @@ export const handleRegisterRestaurant = async (req, res, next) => {
             }
         }
     */
-  if (req.payload.role != "BIZ") throw new Error("사업자 계정이 아닙니다.");
   const result = await registerRestaurant(
     registerRestaurantRequestDto(req.body, req.files, req.payload)
   );
