@@ -43,7 +43,7 @@ const router = Router();
 
 // 생성: 업로드 파서 → 컨트롤러 (S3 업로드는 컨트롤러에서 수행)
 router.post(
-  "/restaurants/:id/reviews",
+  "/restaurants/:id",
   authenticateAccessToken,
   uploadReviewImages,
   handleCreateReviews
@@ -51,12 +51,12 @@ router.post(
 
 // 삭제
 router.delete(
-  "/reviews/:reviewId",
+  "/:reviewId",
   authenticateAccessToken,
   handleDeleteReviews
 );
 
 // 내 리뷰 목록
-router.get("/reviews/me", authenticateAccessToken, handleGetMyReviews);
+router.get("/me", authenticateAccessToken, handleGetMyReviews);
 
 export default router;
