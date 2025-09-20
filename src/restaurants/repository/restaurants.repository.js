@@ -1,18 +1,12 @@
-// ⚠️ 프리즈마 싱글턴을 이 파일에서 직접 안전하게 생성
 import { PrismaClient } from "../../generated/prisma/index.js";
 
 const g = globalThis;
 export const prisma = g.__zwPrisma ?? new PrismaClient();
 if (!g.__zwPrisma) g.__zwPrisma = prisma;
 
-/** bbox 내 식당 목록 */
-export function findNearbyRestaurants({ bbox, category, offset, limit }) {
-  const where = {
-    mapx: { gte: bbox.minX, lte: bbox.maxX },
-    mapy: { gte: bbox.minY, lte: bbox.maxY },
-    ...(category ? { category } : {}),
-  };
-
+/** 식당 목록 */
+export function findRestaurants({ category, offset, limit }) {
+  const where = category ? { category } : {};
   return prisma.restaurant.findMany({
     where,
     orderBy: { id: "asc" },
@@ -24,16 +18,12 @@ export function findNearbyRestaurants({ bbox, category, offset, limit }) {
   });
 }
 
-export function countNearbyRestaurants({ bbox, category }) {
-  const where = {
-    mapx: { gte: bbox.minX, lte: bbox.maxX },
-    mapy: { gte: bbox.minY, lte: bbox.maxY },
-    ...(category ? { category } : {}),
-  };
+export function countRestaurants({ category }) {
+  const where = category ? { category } : {};
   return prisma.restaurant.count({ where });
 }
 
-/** 상세 + 통계 + 개인화(즐겨찾기 여부) */
+/** 상세 + 통계 + 개인화 */
 export function findRestaurantByIdWithStats({ restaurantId, userId }) {
   return prisma.restaurant
     .findUnique({
@@ -69,7 +59,6 @@ export function listRestaurantReviews({
   limit,
   orderBy,
 }) {
-  // 기본 정렬은 최신순
   const order =
     orderBy === "HIGH_SCORE"
       ? [{ reviewMenu: { _avg: { leftoverRatio: "asc" } } }]
@@ -94,7 +83,6 @@ export function listRestaurantReviews({
         id: r.id,
         userId: r.userId,
         nickname: r.user?.nickname ?? null,
-        rating: null, // 스키마에 rating 없음
         leftoverRate: r.reviewMenu.length
           ? Math.round(
               (r.reviewMenu.reduce((s, m) => s + (m.leftoverRatio ?? 0), 0) /
