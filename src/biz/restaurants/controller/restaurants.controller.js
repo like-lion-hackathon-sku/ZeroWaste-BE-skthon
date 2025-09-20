@@ -63,7 +63,7 @@ export const handleRegisterRestaurant = async (req, res, next) => {
         }
     */
   const result = await registerRestaurant(
-    registerRestaurantRequestDto(req.body, req.files, req.payload)
+    registerRestaurantRequestDto(req.body, req.files, req.payload),
   );
   res.status(StatusCodes.CREATED).success(result);
 };
