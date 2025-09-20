@@ -1,9 +1,17 @@
 import express from "express";
+import {
+  verifyUserIsActive,
+  authenticateAccessToken,
+} from "../../../auth/middleware/auth.middleware.js";
+import { handleVerifyStamps } from "../controller/stamps.controller.js";
 
 const router = express.Router({ mergeParams: true });
 
-router.get("/", (req, res) => {
-  res.send("biz/stamps");
-});
+router.post(
+  "/use",
+  authenticateAccessToken,
+  verifyUserIsActive,
+  handleVerifyStamps
+);
 
 export default router;
