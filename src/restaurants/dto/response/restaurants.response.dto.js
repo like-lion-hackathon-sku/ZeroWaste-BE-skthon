@@ -57,6 +57,7 @@ export const RestaurantReviewsSuccess = {
     ok({
       page: data.page,
       size: data.size,
+      score: r.score,
       total: data.total,
       items: data.items ?? [],
     }),
