@@ -1,14 +1,12 @@
-// 위치: src/restaurants/repository/restaurants.repository.js
-import prisma from "../../generated/prisma/index.js";
+import { PrismaClient } from "../../generated/prisma/index.js";
 
-/** bbox 내 식당 목록 */
-export function findNearbyRestaurants({ bbox, category, offset, limit }) {
-  const where = {
-    mapx: { gte: bbox.minX, lte: bbox.maxX },
-    mapy: { gte: bbox.minY, lte: bbox.maxY },
-    ...(category ? { category } : {}),
-  };
+const g = globalThis;
+export const prisma = g.__zwPrisma ?? new PrismaClient();
+if (!g.__zwPrisma) g.__zwPrisma = prisma;
 
+/** 식당 목록 */
+export function findRestaurants({ category, offset, limit }) {
+  const where = category ? { category } : {};
   return prisma.restaurant.findMany({
     where,
     orderBy: { id: "asc" },
@@ -20,16 +18,12 @@ export function findNearbyRestaurants({ bbox, category, offset, limit }) {
   });
 }
 
-export function countNearbyRestaurants({ bbox, category }) {
-  const where = {
-    mapx: { gte: bbox.minX, lte: bbox.maxX },
-    mapy: { gte: bbox.minY, lte: bbox.maxY },
-    ...(category ? { category } : {}),
-  };
+export function countRestaurants({ category }) {
+  const where = category ? { category } : {};
   return prisma.restaurant.count({ where });
 }
 
-/** 상세 + 통계 + 개인화(즐겨찾기 여부) */
+/** 상세 + 통계 + 개인화 */
 export function findRestaurantByIdWithStats({ restaurantId, userId }) {
   return prisma.restaurant
     .findUnique({
@@ -65,13 +59,12 @@ export function listRestaurantReviews({
   limit,
   orderBy,
 }) {
-  // 별점 필드가 없으므로 기본 정렬은 최신순
   const order =
     orderBy === "HIGH_SCORE"
       ? [{ reviewMenu: { _avg: { leftoverRatio: "asc" } } }]
       : orderBy === "LOW_SCORE"
-      ? [{ reviewMenu: { _avg: { leftoverRatio: "desc" } } }]
-      : [{ createdAt: "desc" }];
+        ? [{ reviewMenu: { _avg: { leftoverRatio: "desc" } } }]
+        : [{ createdAt: "desc" }];
 
   return prisma.review
     .findMany({
@@ -90,19 +83,18 @@ export function listRestaurantReviews({
         id: r.id,
         userId: r.userId,
         nickname: r.user?.nickname ?? null,
-        rating: null, // 스키마에 rating 없음
         leftoverRate: r.reviewMenu.length
           ? Math.round(
               (r.reviewMenu.reduce((s, m) => s + (m.leftoverRatio ?? 0), 0) /
                 r.reviewMenu.length) *
-                100
+                100,
             )
           : null,
         content: r.content,
         createdAt: r.createdAt,
         images: r.reviewPhoto.map((p) => p.imageName),
         isMine: userId ? r.userId === userId : false,
-      }))
+      })),
     );
 }
 
