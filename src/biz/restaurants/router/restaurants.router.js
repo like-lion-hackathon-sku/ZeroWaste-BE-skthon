@@ -4,6 +4,8 @@ import {
   verifyUserIsActive,
 } from "../../../auth/middleware/auth.middleware.js";
 import { handleRegisterRestaurant } from "../controller/restaurants.controller.js";
+//현준 추가
+import { handleGetBizRestaurantDetail } from "../controller/restaurants.controller.js";
 import multer from "multer";
 
 const router = express.Router({ mergeParams: true });
@@ -29,5 +31,6 @@ router.get(
   authenticateAccessToken,
   verifyUserIsActive
 );
-
+//현준 추가
+router.get("/:restaurantId", handleGetBizRestaurantDetail);
 export default router;

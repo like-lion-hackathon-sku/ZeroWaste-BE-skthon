@@ -12,7 +12,10 @@ const ALLOWED_SORT_FIELDS = new Set(["createdAt", "score", "id"]);
  * - 존재 + 소유 둘 다 만족하면 해당 Restaurant 반환
  * - 없으면 null
  */
-export const findRestaurantByIdAndOwnerRepo = async ({ ownerId, restaurantId }) => {
+export const findRestaurantByIdAndOwnerRepo = async ({
+  ownerId,
+  restaurantId,
+}) => {
   const restaurant = await prisma.restaurant.findFirst({
     where: { id: restaurantId, ownerId },
     select: { id: true, name: true, ownerId: true },
@@ -118,4 +121,30 @@ export const listBizReviewsRepo = async ({
   });
 
   return reviews;
+};
+
+export const listBizReviewSummariesRepo = async ({
+  ownerId,
+  restaurantId,
+  skip,
+  take,
+  order, // 'asc' | 'desc'
+}) => {
+  const where = {
+    restaurant: { ownerId }, // 오너 소유 식당 필터
+    ...(restaurantId ? { restaurantId } : {}),
+  };
+  return prisma.review.findMany({
+    where,
+    select: {
+      id: true, // 프론트에 안줘도 되지만 내부 정렬/디버그용
+      content: true,
+      createdAt: true,
+      detailFeedback: true,
+      restaurantId: true,
+    },
+    orderBy: { createdAt: order },
+    skip,
+    take,
+  });
 };

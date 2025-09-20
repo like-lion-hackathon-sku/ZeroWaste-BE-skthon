@@ -37,3 +37,14 @@ export const mapBizReviewsList = (svcResult) => ({
   meta: svcResult.meta,
   reviews: svcResult.items.map(mapBizReview),
 });
+
+// 요약용
+export const mapBizReviewSummary = (r) => ({
+  content: r.content,
+  created_at: r.createdAt,
+  detail_feedback: r.detailFeedback ?? null,
+});
+
+// ⬇️ 추가: 배열만 반환하는 매퍼
+export const mapBizReviewSummariesArray = (svcResult) =>
+  svcResult.items.map(mapBizReviewSummary);
