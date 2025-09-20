@@ -102,3 +102,12 @@ export function listRestaurantReviews({
 export function countRestaurantReviews({ restaurantId }) {
   return prisma.review.count({ where: { restaurantId } });
 }
+// 존재 확인용 (가벼운 쿼리)
+export function findById(id) {
+  const rid = Number(id);
+  if (!Number.isInteger(rid) || rid <= 0) return Promise.resolve(null);
+  return prisma.restaurant.findUnique({
+    where: { id: rid },
+    select: { id: true }, // 존재만 확인
+  });
+}

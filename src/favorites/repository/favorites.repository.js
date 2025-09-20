@@ -96,3 +96,12 @@ export async function findByUser(userId, { page = 1, size = 20 } = {}) {
 
   return { items, pageInfo: { page: safePage, size: safeSize, total } };
 }
+// 존재 확인용 (가벼운 쿼리)
+export function findById(id) {
+  const rid = Number(id);
+  if (!Number.isInteger(rid) || rid <= 0) return Promise.resolve(null);
+  return prisma.restaurant.findUnique({
+    where: { id: rid },
+    select: { id: true }, // 존재만 확인
+  });
+}

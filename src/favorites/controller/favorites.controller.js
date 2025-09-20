@@ -1,4 +1,3 @@
-// 위치: src / favorites / controller / favorites.controller.js
 import { StatusCodes } from "http-status-codes";
 import {
   addFavorite,
@@ -11,7 +10,8 @@ const toPosInt = (v, d) => (Number.isFinite(+v) && +v > 0 ? Math.floor(+v) : d);
 /* 즐겨찾기 목록 조회 컨트롤러 */
 export const listMyFavoritesCtrl = async (req, res, next) => {
   try {
-    const userId = req.payload?.id;
+    // ✅ 인증 미들웨어가 req.user에 넣는 것으로 통일
+    const userId = req.user?.id;
     if (!userId) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
         resultType: "FAILURE",
@@ -55,6 +55,7 @@ export const upsertFavorite = async (req, res, next) => {
     }
 
     const result = await addFavorite({ userId, restaurantId: rid });
+    // 생성/기존 여부에 따라 201/200 나누고 싶으면 아래 한 줄을 201로 변경
     return res
       .status(StatusCodes.OK)
       .json({ resultType: "SUCCESS", error: null, success: result });
