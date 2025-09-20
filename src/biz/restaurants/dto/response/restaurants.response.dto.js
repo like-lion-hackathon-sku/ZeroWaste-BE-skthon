@@ -1,3 +1,4 @@
+// //  위치: src / biz / restaurants / dto / response / restaurants.response.dto.js
 // export class RestaurantResponseDto {
 //   constructor(entity) {
 //     this.id = entity.id;
