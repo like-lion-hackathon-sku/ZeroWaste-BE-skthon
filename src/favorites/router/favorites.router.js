@@ -33,7 +33,7 @@ function onlyDigits404(req, res, next) {
 /* 즐겨찾기 목록 조회
  * GET /api/favorites
  */
-r.get("/", authenticateAccessToken, verifyUserIsActive, listMyFavoritesCtrl);
+r.get("/", listMyFavoritesCtrl);
 
 /* 즐겨찾기 추가
  * POST /api/favorites
