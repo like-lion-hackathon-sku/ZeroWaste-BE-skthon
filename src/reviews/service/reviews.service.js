@@ -8,10 +8,11 @@ import {
   findReviewByIdRepo,
   listMyReviewsRepo,
 } from "../repository/reviews.repository.js";
-import { deleteFromS3 } from "../../utils/s3.js"; 
+import { deleteFromS3 } from "../../utils/s3.js";
+import { eventEmitter } from "../../index.js"; // ⭐ 스탬프 이벤트 사용
 
 /* =========================
- * 도메인 전용 에러 클래스 
+ * 도메인 전용 에러 클래스
  * ========================= */
 class RestaurantNotFoundError extends Error {
   constructor(message = "식당을 찾을 수 없습니다.", meta = {}) {
@@ -59,7 +60,7 @@ class S3DeleteError extends Error {
  * ***createReviewSvc***
  * 리뷰 생성 → 이미지 파일명 저장 → 사진 목록 포함 반환
  * (동일 식당에 대한 중복 리뷰 허용)
- * @param {{ userId:number, restaurantId:number, content:string, imageKeys?:string[] }} params
+ * @param {{ userId:number, restaurantId:number, content:string, imageKeys?:string[], score:number }} params
  * @returns {Promise<{review:Object, photos:Array}>}
  */
 export const createReviewSvc = async ({
@@ -67,6 +68,7 @@ export const createReviewSvc = async ({
   restaurantId,
   content,
   imageKeys = [],
+  score, // ⭐ 필수 (0~5)
 }) => {
   // 1) 식당 존재 확인
   const restaurant = await findRestaurantByIdRepo(restaurantId);
@@ -74,11 +76,12 @@ export const createReviewSvc = async ({
     throw new RestaurantNotFoundError(undefined, { restaurantId });
   }
 
-  // 2) 리뷰 생성 (스키마: Review.content)
+  // 2) 리뷰 생성 (content + score)
   const created = await createReviewRepo({
     userId,
     restaurantId,
     content,
+    score,
   });
 
   // 3) 이미지(파일명) 저장
@@ -86,7 +89,16 @@ export const createReviewSvc = async ({
     await createReviewPhotosByKeysRepo({ reviewId: created.id, imageKeys });
   }
 
-  // 4) 사진 목록 조회
+  // 4) 4.0 이상이면 스탬프 적립 이벤트 발행
+  if (typeof score === "number" && score >= 4) {
+    // 필요 시 reviewId까지 함께 전달
+    eventEmitter.emit("REQUEST_ADD_STAMP", {
+      userId,
+      restaurantId,
+    });
+  }
+
+  // 5) 사진 목록 조회
   const photos = await listPhotosByReviewIdRepo(created.id);
 
   return { review: created, photos };

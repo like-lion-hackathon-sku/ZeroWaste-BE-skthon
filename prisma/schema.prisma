@@ -13,84 +13,97 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 enum UserRole {
   USER
   BIZ
 }
+
 model User {
-  id                      Int                       @id @default(autoincrement())
-  email                   String                    @unique(map: "email") @db.VarChar(40)
-  password                String                    @db.VarChar(60)
-  nickname                String?                   @db.VarChar(10)
-  profile                 String?                   @db.VarChar(50) @unique
-  createdAt               DateTime                  @default(now()) @map("created_at")
-  updatedAt               DateTime?                 @updatedAt @map("updated_at")
-  isCompleted             Boolean                   @default(false) @map("is_completed")
-  role                    UserRole                  @default(USER)
-  refreshToken            RefreshToken[]
-  userBadge               UserBadge[]
-  favorite                Favorite[]
-  review                  Review[]
-  stamp                   Stamp[]
-  stampCode               StampCode[]
-  acceptedNotification    AcceptedNotification[]
-  restaurant              Restaurant[]
+  id                   Int                    @id @default(autoincrement())
+  email                String                 @unique(map: "email") @db.VarChar(40)
+  password             String                 @db.VarChar(60)
+  nickname             String?                @db.VarChar(10)
+  profile              String?                @unique @db.VarChar(50)
+  createdAt            DateTime               @default(now()) @map("created_at")
+  updatedAt            DateTime?              @updatedAt @map("updated_at")
+  isCompleted          Boolean                @default(false) @map("is_completed")
+  role                 UserRole               @default(USER)
+  refreshToken         RefreshToken[]
+  userBadge            UserBadge[]
+  favorite             Favorite[]
+  review               Review[]
+  stamp                Stamp[]
+  stampCode            StampCode[]
+  acceptedNotification AcceptedNotification[]
+  restaurant           Restaurant[]
+
   @@map("user")
 }
+
 model RefreshToken {
-  id         Int       @id @default(autoincrement())
-  token      String    @db.Text
-  userId     Int       @map("user_id")
-  updatedAt  DateTime? @updatedAt @map("updated_at")
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        Int       @id @default(autoincrement())
+  token     String    @db.Text
+  userId    Int       @map("user_id")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("refresh_token")
 }
+
 enum BadgeType {
   USER
   RESTAURANT
 }
+
 model Badge {
-  id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(30) @unique
-  description String    @db.Text
-  type        BadgeType
-  userBadge   UserBadge[]
+  id              Int               @id @default(autoincrement())
+  name            String            @unique @db.VarChar(30)
+  description     String            @db.Text
+  type            BadgeType
+  userBadge       UserBadge[]
   restaurantBadge RestaurantBadge[]
+
   @@map("badge")
 }
+
 model UserBadge {
-  id          Int       @id @default(autoincrement())
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int       @map("user_id")
-  badge       Badge     @relation(fields: [badgeId], references: [id], onDelete: Cascade)
-  badgeId     Int       @map("badge_id")
-  acquiredAt  DateTime  @default(now()) @map("acquired_at")
+  id                Int                 @id @default(autoincrement())
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            Int                 @map("user_id")
+  badge             Badge               @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  badgeId           Int                 @map("badge_id")
+  acquiredAt        DateTime            @default(now()) @map("acquired_at")
   badgeNotification BadgeNotification[]
+
   @@map("user_badge")
 }
+
 model RestaurantBadge {
-  id          Int       @id @default(autoincrement())
-  badge       Badge     @relation(fields: [badgeId], references: [id], onDelete: Cascade)
-  badgeId     Int       @map("badge_id")
-  restaurant  Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  restaurantId Int      @map("restaurant_id")
-  acquiredAt  DateTime  @default(now()) @map("acquired_at")
+  id                          Int                           @id @default(autoincrement())
+  badge                       Badge                         @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  badgeId                     Int                           @map("badge_id")
+  restaurant                  Restaurant                    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantId                Int                           @map("restaurant_id")
+  acquiredAt                  DateTime                      @default(now()) @map("acquired_at")
   restaurantBadgeNotification RestaurantBadgeNotification[]
+
   @@map("restaurant_badge")
 }
+
 model Favorite {
-  id            Int         @id @default(autoincrement())
-  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  restaurantId Int         @map("restaurant_id")
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId        Int         @map("user_id")
+  id           Int        @id @default(autoincrement())
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantId Int        @map("restaurant_id")
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int        @map("user_id")
+
   @@map("favorite")
 }
 
 enum FoodCategory {
   KOREAN
-  JAPAESE
+  JAPANESE
   CHINESE
   WESTERN
   FASTFOOD
@@ -99,112 +112,121 @@ enum FoodCategory {
 }
 
 model Restaurant {
-  id            Int          @id @default(autoincrement())
-  name          String       @db.VarChar(50)
-  category      FoodCategory
-  address       String       @db.Text
-  telephone     String       @db.VarChar(15)
-  mapx          Int?
-  mapy          Int?
-  createdAt     DateTime     @default(now()) @map("created_at")
-  updatedAt     DateTime?    @updatedAt @map("updated_at")
-  feedback      String?      @db.Text
-  user          User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  ownerId       Int          @map("owner_id")
+  id        Int          @id @default(autoincrement())
+  name      String       @db.VarChar(50)
+  category  FoodCategory
+  address   String       @db.Text
+  telephone String       @db.VarChar(15)
+  mapx      Int?
+  mapy      Int?
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime?    @updatedAt @map("updated_at")
+  feedback  String?      @db.Text
+  user      User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId   Int          @map("owner_id")
 
-  favorite      Favorite[]
-  review        Review[]
+  favorite        Favorite[]
+  review          Review[]
   restaurantBadge RestaurantBadge[]
-  menu          Menu[]
+  menu            Menu[]
   restaurantPhoto RestaurantPhoto[]
-  stamp         Stamp[]
-  stampReward   StampReward[]
-  stampCode     StampCode[]
+  stamp           Stamp[]
+  stampReward     StampReward[]
+  stampCode       StampCode[]
 
   @@map("restaurant")
 }
+
 model RestaurantPhoto {
-  id            Int          @id @default(autoincrement())
-  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  restaurantId  Int         @map("restaurant_id")
-  photoName     String      @db.VarChar(100) @map("photo_name")
-  createdAt     DateTime    @default(now()) @map("created_at")
+  id           Int        @id @default(autoincrement())
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantId Int        @map("restaurant_id")
+  photoName    String     @map("photo_name") @db.VarChar(100)
+  createdAt    DateTime   @default(now()) @map("created_at")
 
   @@map("restaurant_photo")
 }
-model Menu {
-  id            Int          @id @default(autoincrement())
-  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  restaurantId  Int         @map("restaurant_id")
-  name          String      @db.VarChar(50)
-  beforePhoto   String      @db.VarChar(100)
-  afterPhoto    String      @db.VarChar(100)
 
-  reviewMenu    ReviewMenu[]
+model Menu {
+  id           Int        @id @default(autoincrement())
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantId Int        @map("restaurant_id")
+  name         String     @db.VarChar(50)
+  beforePhoto  String     @db.VarChar(100)
+  afterPhoto   String     @db.VarChar(100)
+
+  reviewMenu ReviewMenu[]
 
   @@map("menu")
 }
 
 model Review {
-  id            Int         @id @default(autoincrement())
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId        Int         @map("user_id")
-  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  restaurantId  Int         @map("restaurant_id")
-  content       String      @db.Text
-  feedback      String?     @db.Text
-  createdAt     DateTime    @default(now()) @map("created_at")
-  updatedAt     DateTime?   @updatedAt @map("updated_at")
+  id           Int        @id @default(autoincrement())
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int        @map("user_id")
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantId Int        @map("restaurant_id")
+  content      String     @db.Text
+  feedback     String?    @db.Text
+  score        Float
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime?  @updatedAt @map("updated_at")
 
-  reviewPhoto   ReviewPhoto[]
-  reviewMenu    ReviewMenu[]
+  reviewPhoto        ReviewPhoto[]
+  reviewMenu         ReviewMenu[]
   reviewNotification ReviewNotification[]
 
   @@map("review")
 }
+
 model ReviewMenu {
-  id            Int         @id @default(autoincrement())
-  review        Review      @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-  reviewId      Int         @map("review_id")
-  menu          Menu        @relation(fields: [menuId], references: [id], onDelete: Cascade)
-  menuId        Int         @map("menu_id")
-  leftoverRatio Float       @map("leftover_ratio")
+  id            Int    @id @default(autoincrement())
+  review        Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewId      Int    @map("review_id")
+  menu          Menu   @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  menuId        Int    @map("menu_id")
+  leftoverRatio Float  @map("leftover_ratio")
 
   @@map("review_menu")
 }
+
 model ReviewPhoto {
-  id            Int         @id @default(autoincrement())
-  review        Review      @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-  reviewId      Int         @map("review_id")
-  imageName     String      @db.VarChar(50) @unique
-  leftoverRatio Float       @default(1)
-  createdAt     DateTime    @default(now()) @map("created_at")
+  id            Int      @id @default(autoincrement())
+  review        Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewId      Int      @map("review_id")
+  imageName     String   @unique @db.VarChar(50)
+  leftoverRatio Float    @default(1)
+  createdAt     DateTime @default(now()) @map("created_at")
 
   @@map("review_photo")
 }
+
 model Stamp {
-  id            Int         @id @default(autoincrement())
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId        Int         @map("user_id")
-  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  restaurantId  Int         @map("restaurant_id")
-  usedAt        DateTime?   @map("used_at")
-  acquiredAt    DateTime    @map("acquired_at") @default(now())
+  id           Int        @id @default(autoincrement())
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int        @map("user_id")
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantId Int        @map("restaurant_id")
+  usedAt       DateTime?  @map("used_at")
+  acquiredAt   DateTime   @default(now()) @map("acquired_at")
 
   stampNotification StampNotification[]
 
   @@map("stamp")
 }
-model StampReward {
-  id            Int         @id @default(autoincrement())
-  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  restaurantId  Int         @map("restaurant_id")
-  condition     Int
-  reward        String      @db.Text
 
-  stampCode     StampCode[]
+model StampReward {
+  id           Int        @id @default(autoincrement())
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantId Int        @map("restaurant_id")
+  condition    Int
+  reward       String     @db.Text
+
+  stampCode StampCode[]
+
   @@map("stamp_reward")
 }
+
 model StampCode {
   id            Int         @id @default(autoincrement())
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -228,58 +250,67 @@ enum NotificationType {
 }
 
 model Notification {
-  id            Int         @id @default(autoincrement())
-  type          NotificationType
-  createdAt     DateTime    @default(now()) @map("created_at")
+  id        Int              @id @default(autoincrement())
+  type      NotificationType
+  createdAt DateTime         @default(now()) @map("created_at")
 
-  reviewNotification ReviewNotification[]
-  stampNotification StampNotification[]
-  badgeNotification BadgeNotification[]
-  acceptedNotification AcceptedNotification[]
+  reviewNotification          ReviewNotification[]
+  stampNotification           StampNotification[]
+  badgeNotification           BadgeNotification[]
+  acceptedNotification        AcceptedNotification[]
   restaurantBadgeNotification RestaurantBadgeNotification[]
+
   @@map("notification")
 }
 
 model ReviewNotification {
-  id            Int         @id @default(autoincrement())
-  notification  Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  notificationId Int        @map("notification_id")
-  review        Review       @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-  reviewId      Int         @map("review_id")
+  id             Int          @id @default(autoincrement())
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  notificationId Int          @map("notification_id")
+  review         Review       @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewId       Int          @map("review_id")
+
   @@map("review_notification")
 }
 
 model StampNotification {
-  id            Int         @id @default(autoincrement())
-  notification  Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  notificationId Int        @map("notification_id")
-  stamp         Stamp       @relation(fields: [stampId], references: [id], onDelete: Cascade)
-  stampId       Int         @map("stamp_id")
+  id             Int          @id @default(autoincrement())
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  notificationId Int          @map("notification_id")
+  stamp          Stamp        @relation(fields: [stampId], references: [id], onDelete: Cascade)
+  stampId        Int          @map("stamp_id")
+
   @@map("stamp_notification")
 }
+
 model BadgeNotification {
-  id            Int         @id @default(autoincrement())
-  notification  Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  notificationId Int        @map("notification_id")
-  userBadge     UserBadge   @relation(fields: [badgeId], references: [id], onDelete: Cascade)
-  badgeId       Int         @map("badge_id")
+  id             Int          @id @default(autoincrement())
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  notificationId Int          @map("notification_id")
+  userBadge      UserBadge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  badgeId        Int          @map("badge_id")
+
   @@map("badge_notification")
 }
+
 model RestaurantBadgeNotification {
-  id            Int         @id @default(autoincrement())
-  notification  Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  notificationId Int        @map("notification_id")
-  restaurantBadge      RestaurantBadge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
-  badgeId       Int         @map("badge_id")
+  id              Int             @id @default(autoincrement())
+  notification    Notification    @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  notificationId  Int             @map("notification_id")
+  restaurantBadge RestaurantBadge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  badgeId         Int             @map("badge_id")
+
   @@map("restaurant_badge_notification")
 }
+
 model AcceptedNotification {
-  id            Int         @id @default(autoincrement())
-  notification  Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  notificationId Int        @map("notification_id")
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId        Int         @map("user_id")
-  acceptedAt    DateTime    @map("accepted_at") @default(now())
-  checkedAt     DateTime?   @map("checked_at")
+  id             Int          @id @default(autoincrement())
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  notificationId Int          @map("notification_id")
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int          @map("user_id")
+  acceptedAt     DateTime     @default(now()) @map("accepted_at")
+  checkedAt      DateTime?    @map("checked_at")
+
   @@map("accepted_notification")
 }
