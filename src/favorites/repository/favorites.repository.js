@@ -15,12 +15,14 @@ export async function ensureFavorite(userId, restaurantId) {
       select: { id: true },
       orderBy: { id: "asc" },
     });
-    if (existing) return false;
+    // repository
+    if (existing) return { created: false, id: existing.id };
 
     const created = await tx.favorite.create({
       data: { userId: Number(userId), restaurantId: Number(restaurantId) },
       select: { id: true },
     });
+    return { created: true, id: created.id };
 
     // 혹시 모를 중복 정리
     const dupes = await tx.favorite.findMany({
