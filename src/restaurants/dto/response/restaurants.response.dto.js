@@ -60,3 +60,8 @@ export const RestaurantReviewsSuccess = {
     }),
   fail,
 };
+export const getRestaurantBenefitsResponseDto = (data) => {
+  return {
+    benefits: data,
+  };
+};

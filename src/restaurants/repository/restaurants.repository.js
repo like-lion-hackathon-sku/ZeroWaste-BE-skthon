@@ -1,8 +1,7 @@
 // repository
-import { PrismaClient } from "../../generated/prisma/index.js";
+import { prisma } from "../../db.config.js";
 
 const g = globalThis;
-export const prisma = g.__zwPrisma ?? new PrismaClient();
 if (!g.__zwPrisma) g.__zwPrisma = prisma;
 
 /** 식당 목록 */
@@ -64,8 +63,8 @@ export function listRestaurantReviews({
     orderBy === "HIGH_SCORE"
       ? [{ reviewMenu: { _avg: { leftoverRatio: "asc" } } }]
       : orderBy === "LOW_SCORE"
-        ? [{ reviewMenu: { _avg: { leftoverRatio: "desc" } } }]
-        : [{ createdAt: "desc" }];
+      ? [{ reviewMenu: { _avg: { leftoverRatio: "desc" } } }]
+      : [{ createdAt: "desc" }];
 
   return prisma.review
     .findMany({
@@ -88,14 +87,14 @@ export function listRestaurantReviews({
           ? Math.round(
               (r.reviewMenu.reduce((s, m) => s + (m.leftoverRatio ?? 0), 0) /
                 r.reviewMenu.length) *
-                100,
+                100
             )
           : null,
         content: r.content,
         createdAt: r.createdAt,
         images: r.reviewPhoto.map((p) => p.imageName),
         isMine: userId ? r.userId === userId : false,
-      })),
+      }))
     );
 }
 
@@ -111,3 +110,18 @@ export function findById(id) {
     select: { id: true }, // 존재만 확인
   });
 }
+
+export const getRestaurantBenefitsById = async (data) => {
+  return await prisma.stampReward.findMany({
+    select: {
+      condition: true,
+      reward: true,
+    },
+    where: {
+      restaurantId: data.restaurantId,
+    },
+    orderBy: {
+      condition: "asc",
+    },
+  });
+};

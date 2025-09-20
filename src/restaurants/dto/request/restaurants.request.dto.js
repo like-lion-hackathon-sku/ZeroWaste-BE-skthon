@@ -111,3 +111,9 @@ export function toFoodCategoryEnum(input) {
   }
   return undefined; // 매칭 안 되면 카테고리 필터 없이 검색
 }
+
+export const getRestaurantBenefitsRequestDto = (params) => {
+  return {
+    restaurantId: parseInt(params.restaurantId),
+  };
+};

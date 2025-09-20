@@ -1,10 +1,11 @@
 // controller
 import { StatusCodes } from "http-status-codes";
-import * as svc from "../service/restaurants.service.js";
+import { getRestaurantBenefits } from "../service/restaurants.service.js";
 import {
   parseNearbyQuery,
   parseRestaurantIdParam,
   parseListReviewsQuery,
+  getRestaurantBenefitsRequestDto,
 } from "../dto/request/restaurants.request.dto.js";
 import {
   NearbyRestaurantsSuccess,
@@ -74,4 +75,11 @@ export const handleGetRestaurantReviews = async (req, res, next) => {
     }
     next(e);
   }
+};
+
+export const handleGetRestaurantBenefits = async (req, res, next) => {
+  const benefits = await getRestaurantBenefits(
+    getRestaurantBenefitsRequestDto(req.params)
+  );
+  res.status(StatusCodes.OK).success(benefits);
 };
