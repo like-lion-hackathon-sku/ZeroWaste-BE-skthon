@@ -23,7 +23,7 @@ const TYPE_REVIEW = 1;
  * **[Review]**
  *  **<🕹️ Controller>**
  *  ***handleCreateReviews***
- *  리뷰 생성 (multipart/form-data: images[] + content)
+ *  리뷰 생성 (multipart/form-data: images[] + content + score)
  */
 export const handleCreateReviews = async (req, res, next) => {
   /*
@@ -31,40 +31,35 @@ export const handleCreateReviews = async (req, res, next) => {
   #swagger.description = '특정 식당에 새로운 리뷰를 작성합니다.'
   #swagger.tags = ['Reviews']
   #swagger.requestBody = {
-    required: true,
-    content: {
-      "multipart/form-data": {
-        schema: {
-          type: "object",
-          properties: {
-            content: { type: "string", example: "정말 맛있었어요!" },
-            images: {
-              type: "array",
-              items: { type: "string", format: "binary" }
-            }
+    required : true,
+    content:{
+      "multipart/form-data":{
+        schema:{
+          type:"object",
+          properties:{
+            content:{ type:"string", example:"정말 맛있었어요!" },
+            score:  { type:"number", example:4.0, minimum:0, maximum:5 },
+            images:{ type:"array", items:{ type:"string", format:"binary" } }
           },
-          required: ["content"]
+          required:["content","score"]
         }
       }
     }
   }
   #swagger.responses[201] = {
     description: '리뷰 작성 성공',
-    content: {
-      "application/json": {
-        schema: {
-          type: "object",
-          properties: {
-            id: { type: "number", example: 1 },
-            restaurantId: { type: "number", example: 10 },
-            userId: { type: "number", example: 5 },
-            content: { type: "string", example: "정말 맛있었어요!" },
-            created_at: { type: "string", example: "2025-09-11T04:12:34.000Z" },
-            images: {
-              type: "array",
-              items: { type: "string" },
-              example: ["a1b2c3.jpg", "d4e5f6.png"] // 응답은 파일명 배열
-            }
+    content:{
+      "application/json":{
+        schema:{
+          type:"object",
+          properties:{
+            id:{ type:"number", example:1 },
+            restaurantId:{ type:"number", example:10 },
+            userId:{ type:"number", example:5 },
+            content:{ type:"string", example:"정말 맛있었어요!" },
+            score:{ type:"number", example:4.0 },
+            created_at:{ type:"string", example:"2025-09-11T04:12:34.000Z" },
+            images:{ type:"array", items:{ type:"string" } }
           }
         }
       }
@@ -73,7 +68,6 @@ export const handleCreateReviews = async (req, res, next) => {
   #swagger.responses[400] = { description: '올바르지 않은 입력 값' }
   #swagger.responses[404] = { description: '식당을 찾을 수 없음' }
 */
-
   try {
     // 1) 업로드 파일을 S3로 올려 파일명 배열 확보
     const files = Array.isArray(req.files) ? req.files : [];
@@ -86,14 +80,16 @@ export const handleCreateReviews = async (req, res, next) => {
       ...req,
       body: { ...req.body, imageKeys: uploadedNames },
     });
-    const { userId, restaurantId, content, imageKeys } = parsed;
+    // ✅ score 포함해서 꺼내기
+    const { userId, restaurantId, content, imageKeys, score } = parsed;
 
-    // 3) 서비스 호출
+    // 3) 서비스 호출 (✅ score 함께 전달)
     const { review, photos } = await createReviewSvc({
       userId,
       restaurantId,
       content,
       imageKeys,
+      score,
     });
 
     // 4) 응답
@@ -153,6 +149,7 @@ export const handleGetMyReviews = async (req, res, next) => {
               userId:{ type:"number", example:5 },
               nickname:{ type:"string", example:"현준" },
               content:{ type:"string", example:"맛있었어요." },
+              score:{ type:"number", example:4.0 },
               created_at:{ type:"string", example:"2025-09-11T04:12:34.000Z" },
               images:{ type:"array", items:{ type:"string" } }
             }
