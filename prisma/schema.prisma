@@ -90,7 +90,7 @@ model Favorite {
 
 enum FoodCategory {
   KOREAN
-  JAPAESE
+  JAPANESE
   CHINESE
   WESTERN
   FASTFOOD
@@ -153,6 +153,7 @@ model Review {
   restaurantId  Int         @map("restaurant_id")
   content       String      @db.Text
   feedback      String?     @db.Text
+  score         Float
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime?   @updatedAt @map("updated_at")
 
