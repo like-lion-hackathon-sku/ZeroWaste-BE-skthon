@@ -1,44 +1,21 @@
 // 위치: src / biz / restaurants / dto / request / restaurants.request.dto.js
 
-/**
- * 📌 사업자 전용 식당 등록 요청 DTO
- * @typedef {Object} CreateRestaurantRequestDto
- * @property {string} name - 식당 이름 (필수)
- * @property {string} address - 주소 (필수)
- * @property {string} telephone - 전화번호 (선택)
- * @property {number} mapx - 지도 X 좌표 (경도)
- * @property {number} mapy - 지도 Y 좌표 (위도)
- * @property {string} category - 카테고리 (예: KOREAN, CAFE)
- * @property {string} [licenseNumber] - 사업자 등록 번호
- * @property {string} [licenseImageUrl] - 사업자 등록증 이미지 URL
- */
+/* 등록 요청 DTO (스키마에 맞는 필드만 남김) */
 export class CreateRestaurantRequestDto {
   constructor(payload) {
     this.name = payload.name;
     this.address = payload.address;
     this.telephone = payload.telephone ?? "";
-    this.mapx = payload.mapx;
-    this.mapy = payload.mapy;
-    this.category = payload.category;
-    this.licenseNumber = payload.licenseNumber ?? null;
-    this.licenseImageUrl = payload.licenseImageUrl ?? null;
+    this.mapx = payload.mapx ?? null;
+    this.mapy = payload.mapy ?? null;
+    this.category = payload.category; // KOREAN / JAPAESE / CHINESE / ...
   }
 }
 
-/**
- * 📌 사업자 전용 식당 수정 요청 DTO
- * @typedef {Object} UpdateRestaurantRequestDto
- * @property {number} id - 식당 ID (필수)
- * @property {string} [name] - 식당 이름
- * @property {string} [address] - 주소
- * @property {string} [telephone] - 전화번호
- * @property {number} [mapx] - 지도 X 좌표 (경도)
- * @property {number} [mapy] - 지도 Y 좌표 (위도)
- * @property {string} [category] - 카테고리
- */
+/* 수정 요청 DTO */
 export class UpdateRestaurantRequestDto {
   constructor(payload) {
-    this.id = payload.id;
+    this.id = Number(payload.id);
     this.name = payload.name ?? null;
     this.address = payload.address ?? null;
     this.telephone = payload.telephone ?? null;
@@ -46,4 +23,16 @@ export class UpdateRestaurantRequestDto {
     this.mapy = payload.mapy ?? null;
     this.category = payload.category ?? null;
   }
+}
+
+/* 네이버 후보 검색 쿼리 파싱 */
+export function parseSearchCandidatesQuery(req) {
+  const q = (req.query.q ?? "").toString().trim();
+  const limit = Number(req.query.limit ?? 7);
+  if (!q) {
+    const err = new Error("q is required");
+    err.status = 400;
+    throw err;
+  }
+  return { q, limit: Math.min(Math.max(limit || 7, 1), 30) };
 }
