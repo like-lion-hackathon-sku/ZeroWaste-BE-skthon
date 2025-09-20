@@ -56,7 +56,6 @@ model Badge {
   type        BadgeType
   userBadge   UserBadge[]
   restaurantBadge RestaurantBadge[]
-  badgeNotification BadgeNotification[]
   @@map("badge")
 }
 model UserBadge {
@@ -66,6 +65,7 @@ model UserBadge {
   badge       Badge     @relation(fields: [badgeId], references: [id], onDelete: Cascade)
   badgeId     Int       @map("badge_id")
   acquiredAt  DateTime  @default(now()) @map("acquired_at")
+  badgeNotification BadgeNotification[]
   @@map("user_badge")
 }
 model RestaurantBadge {
@@ -75,6 +75,7 @@ model RestaurantBadge {
   restaurant  Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   restaurantId Int      @map("restaurant_id")
   acquiredAt  DateTime  @default(now()) @map("acquired_at")
+  restaurantBadgeNotification RestaurantBadgeNotification[]
   @@map("restaurant_badge")
 }
 model Favorite {
@@ -231,6 +232,7 @@ model Notification {
   stampNotification StampNotification[]
   badgeNotification BadgeNotification[]
   acceptedNotification AcceptedNotification[]
+  restaurantBadgeNotification RestaurantBadgeNotification[]
   @@map("notification")
 }
 
@@ -255,9 +257,16 @@ model BadgeNotification {
   id            Int         @id @default(autoincrement())
   notification  Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
   notificationId Int        @map("notification_id")
-  badge         Badge       @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  userBadge     UserBadge   @relation(fields: [badgeId], references: [id], onDelete: Cascade)
   badgeId       Int         @map("badge_id")
   @@map("badge_notification")
+}
+model RestaurantBadgeNotification {
+  id            Int         @id @default(autoincrement())
+  notification  Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  notificationId Int        @map("notification_id")
+  restaurantBadge      RestaurantBadge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  badgeId       Int         @map("badge_id")
 }
 model AcceptedNotification {
   id            Int         @id @default(autoincrement())
