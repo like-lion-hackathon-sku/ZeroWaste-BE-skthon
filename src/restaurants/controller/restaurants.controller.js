@@ -1,3 +1,4 @@
+// controller
 import { StatusCodes } from "http-status-codes";
 import * as svc from "../service/restaurants.service.js";
 import {

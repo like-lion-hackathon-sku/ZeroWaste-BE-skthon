@@ -1,3 +1,4 @@
+// repository
 import { PrismaClient } from "../../generated/prisma/index.js";
 
 const g = globalThis;

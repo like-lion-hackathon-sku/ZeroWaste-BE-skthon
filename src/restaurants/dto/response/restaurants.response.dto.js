@@ -1,3 +1,4 @@
+// response
 function ok(success) {
   return { resultType: "SUCCESS", error: null, success };
 }

@@ -1,3 +1,4 @@
+// service
 import * as repo from "../repository/restaurants.repository.js";
 
 /** 식당 목록 조회 */
