@@ -11,7 +11,7 @@ const toPosInt = (v, d) => (Number.isFinite(+v) && +v > 0 ? Math.floor(+v) : d);
 /* 즐겨찾기 목록 조회 컨트롤러 */
 export const listMyFavoritesCtrl = async (req, res, next) => {
   try {
-    const userId = req.user?.id;
+    const userId = req.payload?.id;
     if (!userId) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
         resultType: "FAILURE",
