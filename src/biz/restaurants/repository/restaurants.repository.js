@@ -62,7 +62,10 @@ export const findRestaurantByIdRepo = async (restaurantId) => {
   });
 };
 
-export const findBizRestaurantDetailRepo = async ({ restaurantId, ownerId }) => {
+export const findBizRestaurantDetailRepo = async ({
+  restaurantId,
+  ownerId,
+}) => {
   return prisma.restaurant.findFirst({
     where: { id: restaurantId, ownerId },
     include: {
@@ -100,4 +103,31 @@ export const getRestaurantFavoriteCountRepo = async (restaurantId) => {
   return prisma.favorite.count({
     where: { restaurantId },
   });
+};
+
+export const deleteBizRestaurantRepo = async ({ ownerId, restaurantId }) => {
+  const target = await prisma.restaurant.findFirst({
+    where: { id: restaurantId, ownerId },
+    select: { id: true },
+  });
+  if (!target) return null;
+
+  await prisma.restaurant.delete({ where: { id: target.id } });
+  return true;
+};
+
+export const findBizRestaurantsRepo = async ({ ownerId, page, size }) => {
+  const take = Math.min(Math.max(size, 1), 50);
+  const skip = (page - 1) * take;
+
+  const [total, items] = await Promise.all([
+    prisma.restaurant.count({ where: { ownerId } }),
+    prisma.restaurant.findMany({
+      where: { ownerId },
+      orderBy: { id: "desc" },
+      skip,
+      take,
+    }),
+  ]);
+  return { page, size: take, total, items };
 };
