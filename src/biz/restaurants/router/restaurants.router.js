@@ -21,7 +21,7 @@ router.post(
   ]),
   authenticateAccessToken,
   verifyUserIsActive,
-  handleRegisterRestaurant
+  handleRegisterRestaurant,
 );
 router.delete("/", authenticateAccessToken, verifyUserIsActive);
 router.get("/", authenticateAccessToken, verifyUserIsActive);
@@ -29,7 +29,7 @@ router.get("/:restaurantId", authenticateAccessToken, verifyUserIsActive);
 router.get(
   "/:restaurantId/badges",
   authenticateAccessToken,
-  verifyUserIsActive
+  verifyUserIsActive,
 );
 //현준 추가
 router.get("/:restaurantId", handleGetBizRestaurantDetail);

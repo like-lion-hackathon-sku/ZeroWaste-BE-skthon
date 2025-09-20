@@ -1,7 +1,10 @@
 import { uploadToS3 } from "../../../utils/s3.js";
 import { registerRestaurantResponseDto } from "../dto/response/restaurants.response.dto.js";
 import { addRestaurant } from "../repository/restaurants.repository.js";
-
+import {
+  deleteBizRestaurantRepo,
+  findBizRestaurantsRepo,
+} from "../repository/restaurants.repository.js";
 // 현준 추가
 import {
   findRestaurantByIdRepo,
@@ -74,4 +77,18 @@ export const getBizRestaurantDetailSvc = async ({ restaurantId, ownerId }) => {
       favoriteCount, // 즐겨찾기 수
     },
   };
+};
+
+export const deleteBizRestaurantSvc = async ({ ownerId, restaurantId }) => {
+  const ok = await deleteBizRestaurantRepo({ ownerId, restaurantId });
+  if (!ok) {
+    const e = new Error("RESTAURANT_NOT_FOUND_OR_FORBIDDEN");
+    e.status = 404;
+    throw e;
+  }
+  return true;
+};
+
+export const listBizRestaurantsSvc = async ({ ownerId, page, size }) => {
+  return findBizRestaurantsRepo({ ownerId, page, size });
 };

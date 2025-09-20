@@ -59,8 +59,29 @@ export const getBizRestaurantDetailResponseDto = ({ restaurant, stats }) => {
 
     stats: {
       reviewCount: stats?.reviewCount ?? 0,
-      reviewAvg: stats?.reviewAvg ?? null,        // 리뷰 없으면 null
+      reviewAvg: stats?.reviewAvg ?? null, // 리뷰 없으면 null
       favoriteCount: stats?.favoriteCount ?? 0,
     },
+  };
+};
+
+export const deleteBizRestaurantResponseDto = (ok) => {
+  return { deleted: !!ok };
+};
+
+export const listBizRestaurantsResponseDto = (data) => {
+  return {
+    page: data.page,
+    size: data.size,
+    total: data.total,
+    items: data.items.map((r) => ({
+      id: r.id,
+      name: r.name,
+      category: r.category,
+      address: r.address,
+      telephone: r.telephone,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+    })),
   };
 };
