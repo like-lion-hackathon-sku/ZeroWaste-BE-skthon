@@ -3,16 +3,18 @@ import {
   authenticateAccessToken,
   verifyUserIsActive,
 } from "../../../auth/middleware/auth.middleware.js";
-import { handleRegisterRestaurant } from "../controller/restaurants.controller.js";
-//현준 추가
-import { handleGetBizRestaurantDetail } from "../controller/restaurants.controller.js";
+import {
+  handleRegisterRestaurant,
+  handleGetBizRestaurantDetail,
+  handleDeleteBizRestaurant,      // ✅ 추가
+  handleListBizRestaurants,       // ✅ 추가
+} from "../controller/restaurants.controller.js";
 import multer from "multer";
 
 const router = express.Router({ mergeParams: true });
-const upload = multer({
-  storage: multer.memoryStorage(),
-});
+const upload = multer({ storage: multer.memoryStorage() });
 
+/** 등록 */
 router.post(
   "/",
   upload.fields([
@@ -21,16 +23,38 @@ router.post(
   ]),
   authenticateAccessToken,
   verifyUserIsActive,
-  handleRegisterRestaurant,
+  handleRegisterRestaurant
 );
-router.delete("/", authenticateAccessToken, verifyUserIsActive);
-router.get("/", authenticateAccessToken, verifyUserIsActive);
-router.get("/:restaurantId", authenticateAccessToken, verifyUserIsActive);
+
+/** ✅ 전체 조회: GET /api/biz/restaurants?page=&size= */
+router.get(
+  "/",
+  authenticateAccessToken,
+  verifyUserIsActive,
+  handleListBizRestaurants
+);
+
+/** ✅ 상세 조회: GET /api/biz/restaurants/:restaurantId */
+router.get(
+  "/:restaurantId",
+  authenticateAccessToken,
+  verifyUserIsActive,
+  handleGetBizRestaurantDetail
+);
+
+/** ✅ 삭제: DELETE /api/biz/restaurants/:restaurantId */
+router.delete(
+  "/:restaurantId",
+  authenticateAccessToken,
+  verifyUserIsActive,
+  handleDeleteBizRestaurant
+);
+
+/* (선택) 배지 관련 기존 라우트 유지 시, 경로 충돌 없으므로 그대로 둡니다. */
 router.get(
   "/:restaurantId/badges",
   authenticateAccessToken,
-  verifyUserIsActive,
+  verifyUserIsActive
 );
-//현준 추가
-router.get("/:restaurantId", handleGetBizRestaurantDetail);
+
 export default router;
