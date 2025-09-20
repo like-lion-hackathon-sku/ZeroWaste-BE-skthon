@@ -1,83 +1,52 @@
-// // 위치: src / biz / restaurants / controller / restaurants.controller.js
-// import { StatusCodes } from "http-status-codes";
-// import * as bizSvc from "../service/restaurants.service.js";
-// import { parseSearchCandidatesQuery } from "../dto/request/restaurants.request.dto.js";
-// import { ok, fail } from "../dto/response/restaurants.response.dto.js";
-// import { CreateRestaurantRequestDto } from "../dto/request/restaurants.request.dto.js";
+import { StatusCodes } from "http-status-codes";
+import { registerRestaurant } from "../service/restaurants.service.js";
+import { registerRestaurantRequestDto } from "../dto/request/restaurants.request.dto.js";
 
-// /* 사업체 식당 등록 */
-// export const createRestaurantByBizCtrl = async (req, res, next) => {
-//   try {
-//     const userId = req.user?.id; // 현재는 소유자 매핑 없음(스키마 미지원)
-//     const dto = new CreateRestaurantRequestDto(req.body ?? {}); // 💡 필수값 검증
-//     const result = await bizSvc.ensureRestaurantByBiz(userId, dto);
-//     return res.status(StatusCodes.CREATED).json(ok(result));
-//   } catch (e) {
-//     if (e.status) {
-//       return res.status(e.status).json(fail(e.message));
-//     }
-//     return next(e);
-//   }
-// };
+export const handleRegisterRestaurant = async (req, res, next) => {
+  /*
+        #swagger.tags = ['Biz']
+        #swagger.summary = "식당 추가"
+        #swagger.requestBody = {
+            required : true,
+            content:{
+            "multipart/form-data":{
+                schema:{
+                type:"object",
+                properties:{
+                    name:{ type:"string", example:"맘스터치 수원탑동점" },
+                    category:  { type:"string", example:"FASTFOOD"},
+                    address: {type:"string", example:"경기 수원시 권선구 금호로 222"},
+                    telephone: {type:"string", example:"0312973690"},
+                    mapx:{type:"string", example:"1269742621"},
+                    mapy:{type:"string", example:"372750674"},
+                    images:{ type:"array", items:{ type:"string", format:"binary" } },
+                    menuImages: {type: "array", items:{type:"string", format:"binary"}},
+                    menuMetadatas: { 
+                        type:"array",
+                        items:{
+                            type:"string"
+                        }
+                    },
+                    benefits:{
+                        type:"array",
+                        items:{
+                            type:"object",
+                            properties:{
+                                condition:{type:"number",example:5},
+                                reward:{type:"string", example:"군만두 4개 세트"}
+                            }
+                        }
+                    }
 
-// /* 사업체 식당 수정 */
-// export const updateRestaurantByBizCtrl = async (req, res, next) => {
-//   try {
-//     const userId = req.user?.id;
-//     const result = await bizSvc.updateMyRestaurant(userId, req.body);
-//     return res.status(StatusCodes.OK).json(ok(result));
-//   } catch (e) {
-//     return next(e);
-//   }
-// };
-
-// /* 사업체 식당 삭제 */
-// export const deleteRestaurantByBizCtrl = async (req, res, next) => {
-//   try {
-//     const userId = req.user?.id;
-//     const { restaurantId } = req.body;
-//     const result = await bizSvc.deleteMyRestaurant(
-//       userId,
-//       Number(restaurantId),
-//     );
-//     return res.status(StatusCodes.OK).json(ok(result));
-//   } catch (e) {
-//     return next(e);
-//   }
-// };
-
-// /* 사업체 식당 상세조회 */
-// export const getBizRestaurantDetailCtrl = async (req, res, next) => {
-//   try {
-//     const id = Number(req.params.restaurantId);
-//     const dto = await bizSvc.getMyRestaurantDetail(id);
-//     return res.status(StatusCodes.OK).json(ok(dto));
-//   } catch (e) {
-//     return next(e);
-//   }
-// };
-
-// /* 내 식당 목록 */
-// export const listMyBizRestaurantsCtrl = async (req, res, next) => {
-//   try {
-//     const userId = req.user?.id;
-//     const page = Math.max(1, parseInt(req.query.page ?? "1", 10));
-//     const size = Math.max(1, parseInt(req.query.size ?? "20", 10));
-//     const result = await bizSvc.listMyRestaurants(userId, { page, size });
-//     return res.status(StatusCodes.OK).json(ok(result));
-//   } catch (e) {
-//     return next(e);
-//   }
-// };
-
-// /* 네이버 후보 검색 */
-// export async function searchRestaurantCandidatesCtrl(req, res, next) {
-//   try {
-//     const { q, limit } = parseSearchCandidatesQuery(req);
-//     const items = await bizSvc.searchRestaurantCandidates({ q, limit });
-//     return res.json(ok({ items }));
-//   } catch (e) {
-//     if (e.status) return res.status(e.status).json(fail(e.message));
-//     return next(e);
-//   }
-// }
+                },
+                }
+            }
+            }
+        }
+    */
+  if (req.payload.role != "BIZ") throw new Error("사업자 계정이 아닙니다.");
+  const result = await registerRestaurant(
+    registerRestaurantRequestDto(req.body, req.files, req.payload)
+  );
+  res.status(StatusCodes.CREATED).success(result);
+};
