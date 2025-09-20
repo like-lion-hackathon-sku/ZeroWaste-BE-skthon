@@ -1,14 +1,14 @@
 import { v4 as uuidv4 } from "uuid";
 import { s3 } from "../index.js";
 
-const typeEnum = ["profile", "review", "restaurant"];
+const typeEnum = ["profile", "review", "restaurant", "menu"];
 /**
  * **[s3]**
  * **\<🪛 Utils\>**
  * ***uploadToS3***
  * s3로 이미지 파일을 업로드 하기 위한 유틸 입니다. S3 버킷으로 입력받은 이미지 파일을 업로드 요청합니다.
  * @param {Buffer} file - [업로드할 파일의 버퍼]
- * @param {Number} type - [이미지 타입 - 0 : 프로필 이미지, 1 : 리뷰 이미지, 2 : 식당 이미지 ]
+ * @param {Number} type - [이미지 타입 - 0 : 프로필 이미지, 1 : 리뷰 이미지, 2 : 식당 이미지, 3 : 메뉴 이미지]
  * @returns {String} - [업로드된 파일의 이름]
  */
 export const uploadToS3 = async (file, type) => {
@@ -35,7 +35,7 @@ export const uploadToS3 = async (file, type) => {
  * ***deleteFromS3***
  * S3 버킷에서 파일을 삭제하는 유틸입니다.
  * @param {String} fileName - [삭제할 파일의 이름]
- * @param {Number} type - [이미지 타입 - 0 : 프로필 이미지, 1 : 리뷰 이미지, 2 : 식당 이미지 ]
+ * @param {Number} type - [이미지 타입 - 0 : 프로필 이미지, 1 : 리뷰 이미지, 2 : 식당 이미지, 3 : 메뉴 이미지]
  */
 export const deleteFromS3 = async (fileName, type) => {
   await s3
@@ -51,7 +51,7 @@ export const deleteFromS3 = async (fileName, type) => {
  * **\<🪛 Utils\>**
  * ***generatePresignedUrlForGet***
  * 이미지 로드 Presigned URL 발급 유틸 입니다. AWS로 Presigned URL을 요청하여 받은 다음 반환합니다.
- * @param {Number} type - [이미지 타입 - 0 : 프로필 이미지, 1 : 리뷰 이미지, 2 : 식당 이미지 ]
+ * @param {Number} type - [이미지 타입 - 0 : 프로필 이미지, 1 : 리뷰 이미지, 2 : 식당 이미지, 3 : 메뉴 이미지]
  * @param {String} fileName - [이미지 파일 명]
  * @returns {String} - [Presigned URL]
  */
