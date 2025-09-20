@@ -3,7 +3,12 @@ import {
   authenticateAccessToken,
   verifyUserIsActive,
 } from "../../../auth/middleware/auth.middleware.js";
-import { handleRegisterRestaurant } from "../controller/restaurants.controller.js";
+import {
+  handleRegisterRestaurant,
+  handleListMyBizRestaurants,
+  handleGetMyBizRestaurantDetail,
+  handleDeleteMyBizRestaurant,
+} from "../controller/restaurants.controller.js";
 import multer from "multer";
 
 const router = express.Router({ mergeParams: true });
@@ -19,15 +24,30 @@ router.post(
   ]),
   authenticateAccessToken,
   verifyUserIsActive,
-  handleRegisterRestaurant
+  handleRegisterRestaurant,
 );
-router.delete("/", authenticateAccessToken, verifyUserIsActive);
-router.get("/", authenticateAccessToken, verifyUserIsActive);
-router.get("/:restaurantId", authenticateAccessToken, verifyUserIsActive);
+router.get(
+  "/",
+  authenticateAccessToken,
+  verifyUserIsActive,
+  handleListMyBizRestaurants,
+);
++router.get(
+  "/:restaurantId",
+  authenticateAccessToken,
+  verifyUserIsActive,
+  handleGetMyBizRestaurantDetail,
+);
++router.delete(
+  "/",
+  authenticateAccessToken,
+  verifyUserIsActive,
+  handleDeleteMyBizRestaurant,
+);
 router.get(
   "/:restaurantId/badges",
   authenticateAccessToken,
-  verifyUserIsActive
+  verifyUserIsActive,
 );
 
 export default router;
