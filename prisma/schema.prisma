@@ -134,6 +134,8 @@ model Restaurant {
   stampReward     StampReward[]
   stampCode       StampCode[]
 
+  @@unique([name, address])
+
   @@map("restaurant")
 }
 
@@ -152,8 +154,7 @@ model Menu {
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   restaurantId Int        @map("restaurant_id")
   name         String     @db.VarChar(50)
-  beforePhoto  String     @db.VarChar(100)
-  afterPhoto   String     @db.VarChar(100)
+  photo        String     @db.VarChar(100)
 
   reviewMenu ReviewMenu[]
 
@@ -168,6 +169,7 @@ model Review {
   restaurantId  Int         @map("restaurant_id")
   content       String      @db.Text
   feedback      String?     @db.Text
+  detailFeedback String?     @map("detail_feedback") @db.Text
   score         Float
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime?   @updatedAt @map("updated_at")
