@@ -1,4 +1,5 @@
 import express from "express";
+import { eventEmitter } from "../../index.js";
 
 const router = express.Router({ mergeParams: true });
 
