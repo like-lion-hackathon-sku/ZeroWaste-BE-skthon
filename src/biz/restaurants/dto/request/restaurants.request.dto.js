@@ -1,38 +1,88 @@
-// 위치: src / biz / restaurants / dto / request / restaurants.request.dto.js
+// // 위치: src/restaurants/dto/request/restaurants.request.dto.js
 
-/* 등록 요청 DTO (스키마에 맞는 필드만 남김) */
-export class CreateRestaurantRequestDto {
-  constructor(payload) {
-    this.name = payload.name;
-    this.address = payload.address;
-    this.telephone = payload.telephone ?? "";
-    this.mapx = payload.mapx ?? null;
-    this.mapy = payload.mapy ?? null;
-    this.category = payload.category; // KOREAN / JAPAESE / CHINESE / ...
-  }
-}
+// /** 공통 BadRequest 에러 */
+// export class BadRequestError extends Error {
+//   constructor(message) {
+//     super(message);
+//     this.name = "BadRequestError";
+//     this.status = 400;
+//   }
+// }
 
-/* 수정 요청 DTO */
-export class UpdateRestaurantRequestDto {
-  constructor(payload) {
-    this.id = Number(payload.id);
-    this.name = payload.name ?? null;
-    this.address = payload.address ?? null;
-    this.telephone = payload.telephone ?? null;
-    this.mapx = payload.mapx ?? null;
-    this.mapy = payload.mapy ?? null;
-    this.category = payload.category ?? null;
-  }
-}
+// /** :restaurantId 경로 파라미터 파싱 */
+// export function parseRestaurantIdParam(params = {}) {
+//   const raw = params.restaurantId ?? params.id ?? params.restaurantID;
+//   if (raw === undefined) throw new BadRequestError("restaurantId is required");
+//   const num = Number(raw);
+//   if (!Number.isInteger(num) || num <= 0) {
+//     throw new BadRequestError(`invalid restaurantId: ${raw}`);
+//   }
+//   return { restaurantId: num };
+// }
 
-/* 네이버 후보 검색 쿼리 파싱 */
-export function parseSearchCandidatesQuery(req) {
-  const q = (req.query.q ?? "").toString().trim();
-  const limit = Number(req.query.limit ?? 7);
-  if (!q) {
-    const err = new Error("q is required");
-    err.status = 400;
-    throw err;
-  }
-  return { q, limit: Math.min(Math.max(limit || 7, 1), 30) };
-}
+// /**
+//  * /restaurants/nearby? 쿼리 파싱
+//  * 지원:
+//  *  - bbox=left,bottom,right,top (정수/실수)
+//  *  - 혹은 center=lng,lat & radius=m
+//  *  - page/size
+//  */
+// export function parseNearbyQuery(query = {}) {
+//   const q = {};
+//   if (typeof query.bbox === "string" && query.bbox.trim()) {
+//     const parts = query.bbox.split(",").map((v) => Number(v));
+//     if (parts.length !== 4 || parts.some((v) => !Number.isFinite(v))) {
+//       throw new BadRequestError("bbox must be 'left,bottom,right,top'");
+//     }
+//     const [left, bottom, right, top] = parts;
+//     if (!(left < right && bottom < top)) {
+//       throw new BadRequestError(
+//         "bbox is invalid: left<right and bottom<top required",
+//       );
+//     }
+//     q.bbox = { left, bottom, right, top };
+//   }
+
+//   if (query.center !== undefined) {
+//     const [lng, lat] = String(query.center).split(",").map(Number);
+//     if (![lng, lat].every(Number.isFinite)) {
+//       throw new BadRequestError("center must be 'lng,lat'");
+//     }
+//     const radius = Number(query.radius ?? 1000);
+//     if (!Number.isFinite(radius) || radius <= 0) {
+//       throw new BadRequestError("radius must be a positive number");
+//     }
+//     q.center = { lng, lat, radius };
+//   }
+
+//   // bbox 또는 center 둘 중 하나는 있어야 한다고 강제하고 싶다면 아래 주석 해제
+//   if (!q.bbox && !q.center) {
+//     throw new BadRequestError("either bbox or center must be provided");
+//   }
+
+//   q.page = Math.max(1, parseInt(query.page ?? "1", 10) || 1);
+//   q.size = Math.min(100, Math.max(1, parseInt(query.size ?? "20", 10) || 20));
+//   return q;
+// }
+
+// /** 식당 리뷰 목록 쿼리 */
+// export function parseListReviewsQuery(query = {}) {
+//   const page = Math.max(1, parseInt(query.page ?? "1", 10) || 1);
+//   const size = Math.min(
+//     100,
+//     Math.max(1, parseInt(query.size ?? "20", 10) || 20),
+//   );
+//   const sort = (query.sort ?? "latest").toString(); // latest | best 등
+//   return { page, size, sort };
+// }
+
+// /** (옵션) 키워드 기반 DB 검색용 */
+// export function parseSearchQuery(query = {}) {
+//   const keyword = (query.keyword ?? "").toString().trim();
+//   const page = Math.max(1, parseInt(query.page ?? "1", 10) || 1);
+//   const size = Math.min(
+//     100,
+//     Math.max(1, parseInt(query.size ?? "20", 10) || 20),
+//   );
+//   return { keyword, page, size };
+// }

@@ -15,12 +15,14 @@ export async function ensureFavorite(userId, restaurantId) {
       select: { id: true },
       orderBy: { id: "asc" },
     });
-    if (existing) return false;
+    // repository
+    if (existing) return { created: false, id: existing.id };
 
     const created = await tx.favorite.create({
       data: { userId: Number(userId), restaurantId: Number(restaurantId) },
       select: { id: true },
     });
+    return { created: true, id: created.id };
 
     // 혹시 모를 중복 정리
     const dupes = await tx.favorite.findMany({
@@ -93,4 +95,13 @@ export async function findByUser(userId, { page = 1, size = 20 } = {}) {
   }));
 
   return { items, pageInfo: { page: safePage, size: safeSize, total } };
+}
+// 존재 확인용 (가벼운 쿼리)
+export function findById(id) {
+  const rid = Number(id);
+  if (!Number.isInteger(rid) || rid <= 0) return Promise.resolve(null);
+  return prisma.restaurant.findUnique({
+    where: { id: rid },
+    select: { id: true }, // 존재만 확인
+  });
 }

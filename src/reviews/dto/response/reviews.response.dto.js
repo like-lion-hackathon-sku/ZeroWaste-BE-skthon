@@ -23,12 +23,12 @@ export const toPublicUrl = (keyOrUrl, prefix = REVIEW_PREFIX) => {
   if (/^https?:\/\//i.test(keyOrUrl)) return keyOrUrl;
 
   const base =
-    BUCKET && REGION
-      ? `https://${BUCKET}.s3.${REGION}.amazonaws.com`
-      : ""; // 버킷/리전 없으면 키만 반환
+    BUCKET && REGION ? `https://${BUCKET}.s3.${REGION}.amazonaws.com` : ""; // 버킷/리전 없으면 키만 반환
 
   const cleanKey = String(keyOrUrl).replace(/^\/+/, "");
-  const fullKey = cleanKey.startsWith(prefix) ? cleanKey : `${prefix}${cleanKey}`;
+  const fullKey = cleanKey.startsWith(prefix)
+    ? cleanKey
+    : `${prefix}${cleanKey}`;
 
   return base ? `${base}/${fullKey}` : fullKey;
 };
@@ -46,6 +46,7 @@ export const mapReview = (review, photos = []) => {
     restaurantId: review.restaurantId,
     userId: review.userId,
     content: review.content,
+    score: review.score,
     created_at: review.createdAt, // 프론트 요구: snake_case
     images: photos.map((p) => p.imageName), // 파일명만 전달
   };
@@ -65,6 +66,7 @@ export const mapMyReview = (review) => {
     userId: review.userId,
     nickname: review.user?.nickname ?? null,
     content: review.content,
+    score: review.score,
     created_at: review.createdAt, // 프론트 요구: snake_case
     images: Array.isArray(review.reviewPhoto)
       ? review.reviewPhoto.map((p) => p.imageName) // 파일명만 전달
