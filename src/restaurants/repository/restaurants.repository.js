@@ -1,5 +1,9 @@
-// 위치: src/restaurants/repository/restaurants.repository.js
-import prisma from "../../generated/prisma/index.js";
+// ⚠️ 프리즈마 싱글턴을 이 파일에서 직접 안전하게 생성
+import { PrismaClient } from "../../generated/prisma/index.js";
+
+const g = globalThis;
+export const prisma = g.__zwPrisma ?? new PrismaClient();
+if (!g.__zwPrisma) g.__zwPrisma = prisma;
 
 /** bbox 내 식당 목록 */
 export function findNearbyRestaurants({ bbox, category, offset, limit }) {
@@ -65,13 +69,13 @@ export function listRestaurantReviews({
   limit,
   orderBy,
 }) {
-  // 별점 필드가 없으므로 기본 정렬은 최신순
+  // 기본 정렬은 최신순
   const order =
     orderBy === "HIGH_SCORE"
       ? [{ reviewMenu: { _avg: { leftoverRatio: "asc" } } }]
       : orderBy === "LOW_SCORE"
-      ? [{ reviewMenu: { _avg: { leftoverRatio: "desc" } } }]
-      : [{ createdAt: "desc" }];
+        ? [{ reviewMenu: { _avg: { leftoverRatio: "desc" } } }]
+        : [{ createdAt: "desc" }];
 
   return prisma.review
     .findMany({
@@ -95,14 +99,14 @@ export function listRestaurantReviews({
           ? Math.round(
               (r.reviewMenu.reduce((s, m) => s + (m.leftoverRatio ?? 0), 0) /
                 r.reviewMenu.length) *
-                100
+                100,
             )
           : null,
         content: r.content,
         createdAt: r.createdAt,
         images: r.reviewPhoto.map((p) => p.imageName),
         isMine: userId ? r.userId === userId : false,
-      }))
+      })),
     );
 }
 

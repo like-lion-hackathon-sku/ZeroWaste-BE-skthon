@@ -1,4 +1,3 @@
-// 위치: src / restaurants / dto / request / restaurants.request.dto.js
 class BadRequestError extends Error {
   constructor(message) {
     super(message);
@@ -31,7 +30,6 @@ export function parseNearbyQuery(query) {
   const bbox = parseBbox(query.bbox);
   const page = toPosInt(query.page, 1);
   const size = toPosInt(query.size, 20);
-  // FoodCategory enum 오타(JAPAESE) 가능성 → 엄격검증 대신 대문자만 전달
   const category = query.category
     ? String(query.category).toUpperCase()
     : undefined;
