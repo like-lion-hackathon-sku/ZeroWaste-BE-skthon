@@ -35,25 +35,25 @@ function onlyDigits404(req, res, next) {
  *         required: true
  *         schema:
  *           type: string
- *         description: '검색 영역 (예: "126.97,37.55,126.99,37.57")'
+ *         description: '검색 영역 (예: "126.97,37.56,126.99,37.58" = minX,minY,maxX,maxY)'
  *       - in: query
  *         name: category
  *         schema:
  *           type: string
  *           enum: [KOREAN, JAPANESE, CHINESE, WESTERN, FASTFOOD, CAFE, ETC]
- *         description: 식당 카테고리
+ *         description: 식당 카테고리(선택)
  *       - in: query
  *         name: page
  *         schema:
  *           type: integer
  *           default: 1
- *         description: 페이지 번호
+ *         description: 페이지 번호(1부터)
  *       - in: query
  *         name: size
  *         schema:
  *           type: integer
  *           default: 20
- *         description: 페이지 크기
+ *         description: 페이지 크기(최대 50)
  *     responses:
  *       200:
  *         description: 주변 식당 목록
@@ -88,6 +88,8 @@ r.get("/nearby", searchRestaurantsCtrl);
  *         schema:
  *           type: integer
  *         description: 식당 ID
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: 식당 상세 정보
@@ -101,7 +103,7 @@ r.get("/nearby", searchRestaurantsCtrl);
  *                 name: "맛집"
  *                 category: "KOREAN"
  *                 address: "서울시 ..."
- *                 telephone: "010-1234-5678"
+ *                 telephone: "02-1234-5678"
  *                 feedback: null
  *                 reviewCount: 12
  *                 favoriteCount: 5
@@ -152,6 +154,8 @@ r.get(
  *           enum: [LATEST, HIGH_SCORE, LOW_SCORE]
  *           default: LATEST
  *         description: 정렬 기준
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: 리뷰 목록
