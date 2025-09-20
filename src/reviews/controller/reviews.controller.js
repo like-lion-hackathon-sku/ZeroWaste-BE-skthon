@@ -26,7 +26,7 @@ const TYPE_REVIEW = 1;
  *  리뷰 생성 (multipart/form-data: images[] + content)
  */
 export const handleCreateReviews = async (req, res, next) => {
-  /*
+/*
   #swagger.summary = '리뷰 생성'
   #swagger.description = '특정 식당에 새로운 리뷰를 작성합니다.'
   #swagger.tags = ['Reviews']
@@ -38,10 +38,7 @@ export const handleCreateReviews = async (req, res, next) => {
           type: "object",
           properties: {
             content: { type: "string", example: "정말 맛있었어요!" },
-            images: {
-              type: "array",
-              items: { type: "string", format: "binary" }
-            }
+            images: { type: "array", items: { type: "string", format: "binary" } }
           },
           required: ["content"]
         }
@@ -59,12 +56,8 @@ export const handleCreateReviews = async (req, res, next) => {
             restaurantId: { type: "number", example: 10 },
             userId: { type: "number", example: 5 },
             content: { type: "string", example: "정말 맛있었어요!" },
-            created_at: { type: "string", example: "2025-09-11T04:12:34.000Z" },
-            images: {
-              type: "array",
-              items: { type: "string" },
-              example: ["a1b2c3.jpg", "d4e5f6.png"] // 응답은 파일명 배열
-            }
+            createdAt: { type: "string", example: "2025-09-11T04:12:34.000Z" },
+            images: { type: "array", items: { type: "string" }, example: ["a1b2c3.jpg","d4e5f6.png"] }
           }
         }
       }
