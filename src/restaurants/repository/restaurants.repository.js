@@ -108,4 +108,3 @@ export function listRestaurantReviews({
 
 export function countRestaurantReviews({ restaurantId }) {
   return prisma.review.count({ where: { restaurantId } });
-}
