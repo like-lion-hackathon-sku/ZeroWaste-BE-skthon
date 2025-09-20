@@ -2,7 +2,6 @@
 import {
   InvalidInputValueError,
   LoginRequiredError,
-  PermissionDeniedError,
 } from "../../../../error.js";
 
 // 1 이상 정수로 파싱, 아니면 기본값
@@ -19,13 +18,6 @@ export const parseBizListReviewsQuery = (req) => {
   // 인증 체크
   const ownerId = req?.user?.id;
   if (!ownerId) throw new LoginRequiredError("로그인이 필요합니다.", null);
-
-  // 역할 체크(가드가 따로 있다면 생략 가능)
-  if (req?.user?.role !== "BIZ") {
-    throw new PermissionDeniedError("사업자 전용 API입니다.", {
-      role: req?.user?.role,
-    });
-  }
 
   // restaurantId: 선택값
   const rawRestaurantId = req.query.restaurantId;

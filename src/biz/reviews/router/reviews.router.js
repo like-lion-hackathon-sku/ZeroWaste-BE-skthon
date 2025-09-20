@@ -7,6 +7,10 @@ const router = Router();
 const wrap = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
-router.get("/", authenticateAccessToken, wrap(handleListBizReviews));
+router.get(
+  "/",
+  authenticateAccessToken,
+  wrap(handleListBizReviews)
+);
 
 export default router;
