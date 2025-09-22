@@ -45,7 +45,10 @@ class ForbiddenReviewEditError extends Error {
 }
 
 class S3DeleteError extends Error {
-  constructor(message = "이미지 삭제에 실패했습니다. 다시 시도해 주세요.", meta = {}) {
+  constructor(
+    message = "이미지 삭제에 실패했습니다. 다시 시도해 주세요.",
+    meta = {}
+  ) {
     super(message);
     this.name = "S3DeleteError";
     this.statusCode = 502;
@@ -69,6 +72,7 @@ export const createReviewSvc = async ({
   content,
   imageKeys = [],
   score, // ⭐ 필수 (0~5)
+  detailFeedback = null,
 }) => {
   // 1) 식당 존재 확인
   const restaurant = await findRestaurantByIdRepo(restaurantId);
@@ -82,6 +86,7 @@ export const createReviewSvc = async ({
     restaurantId,
     content,
     score,
+    detailFeedback,
   });
 
   // 3) 이미지(파일명) 저장

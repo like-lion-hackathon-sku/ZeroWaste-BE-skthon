@@ -1,5 +1,5 @@
 // src/reviews/repository/reviews.repository.js
-import { prisma } from "../../db.config.js"
+import { prisma } from "../../db.config.js";
 
 /**
  * **[Reviews]**
@@ -23,7 +23,10 @@ export const findRestaurantByIdRepo = async (restaurantId) => {
  * @param {number} params.restaurantId - 식당 ID
  * @returns {Promise<Object|null>} - 리뷰 객체(일부 선택 필드) 또는 null
  */
-export const findReviewByUserAndRestaurantRepo = async ({ userId, restaurantId }) => {
+export const findReviewByUserAndRestaurantRepo = async ({
+  userId,
+  restaurantId,
+}) => {
   return prisma.review.findFirst({
     where: { userId, restaurantId },
     select: { id: true },
@@ -42,13 +45,20 @@ export const findReviewByUserAndRestaurantRepo = async ({ userId, restaurantId }
  * @param {number} params.score - 평점(0~5) ※ 스키마상 필수
  * @returns {Promise<Object>} - 생성된 리뷰 객체(선택 필드 포함)
  */
-export const createReviewRepo = async ({ userId, restaurantId, content, score }) => {
+export const createReviewRepo = async ({
+  userId,
+  restaurantId,
+  content,
+  score,
+  detailFeedback = null,
+}) => {
   return prisma.review.create({
     data: {
       userId,
       restaurantId,
       content,
-      score, 
+      score,
+      detailFeedback,
     },
     select: {
       id: true,
@@ -56,6 +66,7 @@ export const createReviewRepo = async ({ userId, restaurantId, content, score })
       restaurantId: true,
       content: true,
       score: true,
+      detailFeedback,
       createdAt: true,
     },
   });
@@ -121,7 +132,7 @@ export const deleteReviewRepo = async (reviewId) => {
       userId: true,
       restaurantId: true,
       content: true,
-      score: true,       
+      score: true,
       createdAt: true,
     },
   });
