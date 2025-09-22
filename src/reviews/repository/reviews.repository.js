@@ -66,7 +66,7 @@ export const createReviewRepo = async ({
       restaurantId: true,
       content: true,
       score: true,
-      detailFeedback,
+      detailFeedback: true,
       createdAt: true,
     },
   });
