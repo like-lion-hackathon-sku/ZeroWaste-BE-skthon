@@ -1,5 +1,3 @@
-// src/dto/reviews.response.dto.js
-
 // ✅ .env에 이미 있는 값만 사용
 const BUCKET = process.env.AWS_S3_BUCKET || "";
 const REGION = process.env.AWS_REGION || "ap-northeast-2";
@@ -47,6 +45,8 @@ export const mapReview = (review, photos = []) => {
     userId: review.userId,
     content: review.content,
     score: review.score,
+    feedback: review.feedback ?? null,
+    detailFeedback: review.detailFeedback ?? null,
     created_at: review.createdAt, // 프론트 요구: snake_case
     images: photos.map((p) => p.imageName), // 파일명만 전달
   };
@@ -67,6 +67,8 @@ export const mapMyReview = (review) => {
     nickname: review.user?.nickname ?? null,
     content: review.content,
     score: review.score,
+    feedback: review.feedback ?? null,
+    detailFeedback: review.detailFeedback ?? null,
     created_at: review.createdAt, // 프론트 요구: snake_case
     images: Array.isArray(review.reviewPhoto)
       ? review.reviewPhoto.map((p) => p.imageName) // 파일명만 전달
