@@ -81,7 +81,8 @@ export const handleCreateReviews = async (req, res, next) => {
       body: { ...req.body, imageKeys: uploadedNames },
     });
     // ✅ score 포함해서 꺼내기
-    const { userId, restaurantId, content, imageKeys, score } = parsed;
+    const { userId, restaurantId, content, imageKeys, score, detailFeedback } =
+      parsed;
 
     // 3) 서비스 호출 (✅ score 함께 전달)
     const { review, photos } = await createReviewSvc({
@@ -90,6 +91,7 @@ export const handleCreateReviews = async (req, res, next) => {
       content,
       imageKeys,
       score,
+      detailFeedback,
     });
 
     // 4) 응답
