@@ -33,6 +33,36 @@ export const findReviewByUserAndRestaurantRepo = async ({
   });
 };
 
+/* ✅ 식당 소속 메뉴 검증: menuIds -> 그 식당의 실제 메뉴만 반환 */
+export const findMenusByIdsForRestaurantRepo = async ({ restaurantId, ids }) => {
+  if (!ids?.length) return [];
+  return prisma.menu.findMany({
+    where: { restaurantId, id: { in: ids } },
+    select: { id: true, name: true },
+  });
+};
+
+/**
+ * **[Reviews]**
+ * **<🗄️ Repository>**
+ * ***createReviewMenusRepo***
+ * 리뷰-메뉴 매핑을 생성합니다. leftoverRatio는 초기값 1로 설정합니다.
+ * @param {{ reviewId:number, menuIds:number[] }} params
+ * @returns {Promise<{count:number}>}
+ */
+export const createReviewMenusRepo = async ({ reviewId, menuIds }) => {
+  if (!menuIds?.length) return { count: 0 };
+  const rows = menuIds.map((menuId) => ({
+    reviewId,
+    menuId,
+    leftoverRatio: 1, // 스키마에 default가 없으므로 초기값으로 1 지정
+  }));
+  return prisma.reviewMenu.createMany({
+    data: rows,
+    skipDuplicates: true,
+  });
+};
+
 /**
  * **[Reviews]**
  * **<🗄️ Repository>**
@@ -193,6 +223,10 @@ export const listMyReviewsRepo = async ({ userId, page, size }) => {
       reviewPhoto: {
         select: { id: true, imageName: true, createdAt: true },
         orderBy: { id: "asc" },
+      },
+      // 메뉴명 포함
+      reviewMenu: {
+        include: { menu: { select: { name: true } } },
       },
       user: { select: { nickname: true } },
     },

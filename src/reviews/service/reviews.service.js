@@ -7,6 +7,8 @@ import {
   listPhotosByReviewIdRepo,
   findReviewByIdRepo,
   listMyReviewsRepo,
+  findMenusByIdsForRestaurantRepo,
+  createReviewMenusRepo,
 } from "../repository/reviews.repository.js";
 import { deleteFromS3 } from "../../utils/s3.js";
 import { eventEmitter } from "../../index.js"; // ⭐ 스탬프 이벤트 사용
@@ -73,6 +75,7 @@ export const createReviewSvc = async ({
   imageKeys = [],
   score, // ⭐ 필수 (0~5)
   detailFeedback = null,
+  menuIds = [],
 }) => {
   // 1) 식당 존재 확인
   const restaurant = await findRestaurantByIdRepo(restaurantId);
@@ -89,12 +92,26 @@ export const createReviewSvc = async ({
     detailFeedback,
   });
 
+  // ✅ menuIds 검증 후 연결
+  let linkedMenuNames = [];
+  if (Array.isArray(menuIds) && menuIds.length) {
+    const menus = await findMenusByIdsForRestaurantRepo({
+      restaurantId,
+      ids: menuIds,
+    });
+    const validIds = menus.map((m) => m.id);
+    if (validIds.length) {
+      await createReviewMenusRepo({ reviewId: created.id, menuIds: validIds });
+      linkedMenuNames = menus.map((m) => m.name);
+    }
+  }
+
   // 3) 이미지(파일명) 저장
   if (imageKeys.length) {
     await createReviewPhotosByKeysRepo({ reviewId: created.id, imageKeys });
   }
 
-  // 4) 4.0 이상이면 스탬프 적립 이벤트 발행
+  // 5) 4.0 이상이면 스탬프 적립 이벤트 발행
   if (typeof score === "number" && score >= 4) {
     // 필요 시 reviewId까지 함께 전달
     eventEmitter.emit("REQUEST_ADD_STAMP", {
@@ -103,10 +120,9 @@ export const createReviewSvc = async ({
     });
   }
 
-  // 5) 사진 목록 조회
+  // 6) 사진 목록 조회
   const photos = await listPhotosByReviewIdRepo(created.id);
-
-  return { review: created, photos };
+  return { review: created, photos, menuNames: linkedMenuNames };
 };
 
 /**
@@ -132,7 +148,9 @@ export const deleteReviewWithFilesSvc = async ({ userId, reviewId }) => {
 
   // 2) 현재 사진 목록
   const photos = await listPhotosByReviewIdRepo(reviewId); // [{ id, imageName }, ...]
-
+  const menuNamesForResp = Array.isArray(linkedMenus)
+    ? linkedMenus.map((m) => m.name)
+    : [];
   // 3) S3에서 먼저 모두 삭제 (하나라도 실패하면 전체 실패)
   const TYPE_REVIEW = 1;
   if (photos.length) {
