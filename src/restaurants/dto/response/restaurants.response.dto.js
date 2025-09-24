@@ -58,7 +58,7 @@ export const RestaurantReviewsSuccess = {
       page: data.page,
       size: data.size,
       total: data.total,
-      items: data.items ?? [],
+      items: data.items ?? [], // items[*].detailFeedback: string | null
     }),
   fail,
 };
