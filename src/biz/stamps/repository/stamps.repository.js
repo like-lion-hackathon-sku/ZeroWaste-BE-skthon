@@ -48,5 +48,5 @@ export const expireStampCode = async (data) => {
       usedAt: expiredDate,
     },
   });
-  return isExists.userId;
+  return isExists;
 };

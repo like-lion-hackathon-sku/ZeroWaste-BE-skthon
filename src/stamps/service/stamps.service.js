@@ -35,6 +35,7 @@ export const getAllStamps = async (data) => {
   const results = [];
   for (let count of counts) {
     results.push({
+      restaurantId: count.restaurantId,
       restaurant: await findRestaurantById(count.restaurantId),
       count: count._count._all,
     });

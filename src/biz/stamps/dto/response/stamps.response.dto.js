@@ -1,5 +1,6 @@
 export const verifyStampsResponseDto = (data) => {
   return {
-    customerId: data,
+    customerId: data.userId,
+    restaurantId: data.restaurantId
   };
 };
