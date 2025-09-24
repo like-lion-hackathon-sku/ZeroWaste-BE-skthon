@@ -23,6 +23,7 @@ export const createStampUsingSession = async (data) => {
       where: {
         restaurantId: data.restaurantId,
         userId: data.userId,
+        usedAt: null,
       },
     });
     if (currentStamps < data.condition) return -1;
