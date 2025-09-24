@@ -68,6 +68,7 @@ export const findStampsGroupByRestaurant = async (data) => {
     },
     where: {
       userId: data.userId,
+      usedAt: null,
     },
   });
 };
