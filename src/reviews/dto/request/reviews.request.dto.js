@@ -12,7 +12,7 @@ export const parseCreateReviewRequest = (req) => {
   if (!Number.isInteger(restaurantId) || restaurantId <= 0) {
     throw new InvalidInputValueError(
       "restaurantId가 올바르지 않습니다.",
-      req.params,
+      req.params
     );
   }
 
@@ -38,7 +38,7 @@ export const parseCreateReviewRequest = (req) => {
   if (text.length < 1 || text.length > 1000) {
     throw new InvalidInputValueError(
       "content는 1~1000자여야 합니다.",
-      req.body,
+      req.body
     );
   }
 
@@ -50,7 +50,7 @@ export const parseCreateReviewRequest = (req) => {
     if (detail.length > 2000) {
       throw new InvalidInputValueError(
         "detailFeedback는 최대 2000자입니다.",
-        req.body,
+        req.body
       );
     }
   }
@@ -69,6 +69,20 @@ export const parseCreateReviewRequest = (req) => {
   }
   keys = keys.map((k) => k.slice(0, 50)).slice(0, 5);
 
+  // menuNames : 문자열/배열 모두 허용
+  let parsedMenuIds = [];
+  if (typeof menuIds === "string") {
+    parsedMenuIds = menuIds
+      .split(",")
+      .map((v) => Number(v))
+      .filter((n) => Number.isInteger(n) && n > 0);
+  } else if (Array.isArray(menuIds)) {
+    parsedMenuIds = menuIds
+      .map((v) => Number(v))
+      .filter((n) => Number.isInteger(n) && n > 0);
+  }
+  parsedMenuIds = Array.from(new Set(parsedMenuIds)).slice(0, 20);
+
   return {
     userId,
     restaurantId,
@@ -76,6 +90,7 @@ export const parseCreateReviewRequest = (req) => {
     imageKeys: keys,
     score: normScore,
     detailFeedback: detail || null, // 없으면 null
+    menuIds: parsedMenuIds,
   };
 };
 
@@ -89,7 +104,7 @@ export const parseDeleteMyReviews = (req) => {
   if (!Number.isInteger(reviewId) || reviewId <= 0) {
     throw new InvalidInputValueError(
       "reviewId가 올바르지 않습니다.",
-      req.params,
+      req.params
     );
   }
   return { reviewId };
