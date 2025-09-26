@@ -12,16 +12,13 @@ const REVIEW_PREFIX = "review/";
  * - 절대 URL이면 그대로 반환
  * - S3 키(파일명)면 S3 퍼블릭 엔드포인트로 조합
  * - 키에 prefix 없으면 기본적으로 'review/'를 붙여줌
- * @param {string} keyOrUrl - 파일명(혹은 'review/파일명') 또는 절대 URL
- * @param {string} [prefix=REVIEW_PREFIX] - 필요 시 다른 타입에 사용할 prefix
- * @returns {string}
  */
 export const toPublicUrl = (keyOrUrl, prefix = REVIEW_PREFIX) => {
   if (!keyOrUrl) return "";
   if (/^https?:\/\//i.test(keyOrUrl)) return keyOrUrl;
 
   const base =
-    BUCKET && REGION ? `https://${BUCKET}.s3.${REGION}.amazonaws.com` : ""; // 버킷/리전 없으면 키만 반환
+    BUCKET && REGION ? `https://${BUCKET}.s3.${REGION}.amazonaws.com` : "";
 
   const cleanKey = String(keyOrUrl).replace(/^\/+/, "");
   const fullKey = cleanKey.startsWith(prefix)
@@ -49,7 +46,8 @@ export const mapReview = (review, photos = []) => {
     detailFeedback: review.detailFeedback ?? null,
     created_at: review.createdAt, // 프론트 요구: snake_case
     images: photos.map((p) => p.imageName), // 파일명만 전달
-    menus: Array.isArray(menuNames) ? menuNames : [],
+    menuId: review.menuId ?? null,
+    menuName: review.menu?.name ?? null,
   };
 };
 
@@ -60,16 +58,20 @@ export const mapReview = (review, photos = []) => {
  * 내 리뷰 목록의 각 원소 매핑
  */
 export const mapMyReview = (review) => {
-  const menus = Array.isArray(review.reviewMenu)
-    ? review.reviewMenu.map((rm) => rm?.menu?.name).filter(Boolean)
-    : [];
+  // reviewMenu가 배열일 수 있으니 첫 번째 메뉴만 사용
+  let menuId = null;
+  let menuName = null;
+  if (Array.isArray(review.reviewMenu) && review.reviewMenu.length > 0) {
+    const first = review.reviewMenu[0];
+    menuId = first?.menuId ?? null;
+    menuName = first?.menu?.name ?? null;
+  }
 
   return {
     id: review.id,
     reviewId: review.id,
     restaurantId: review.restaurantId,
-    // 식당 이름 추가
-    restaurantName: review.restaurantName?.name ?? null,
+    restaurantName: review.restaurantName?.name ?? null, // 식당 이름 추가
     userId: review.userId,
     nickname: review.user?.nickname ?? null,
     content: review.content,
@@ -80,7 +82,8 @@ export const mapMyReview = (review) => {
     images: Array.isArray(review.reviewPhoto)
       ? review.reviewPhoto.map((p) => p.imageName) // 파일명만 전달
       : [],
-    menus,
+    menuId,
+    menuName,
   };
 };
 
