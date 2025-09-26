@@ -7,8 +7,8 @@ import {
   listPhotosByReviewIdRepo,
   findReviewByIdRepo,
   listMyReviewsRepo,
-  findMenusByIdsForRestaurantRepo,
-  createReviewMenusRepo,
+  findMenusByIdsForRestaurantRepo, // (호환 함수명 유지)
+  createReviewMenusRepo, // (호환 함수명 유지)
 } from "../repository/reviews.repository.js";
 import { deleteFromS3 } from "../../utils/s3.js";
 import { eventEmitter } from "../../index.js"; // ⭐ 스탬프 이벤트 사용
@@ -49,7 +49,7 @@ class ForbiddenReviewEditError extends Error {
 class S3DeleteError extends Error {
   constructor(
     message = "이미지 삭제에 실패했습니다. 다시 시도해 주세요.",
-    meta = {}
+    meta = {},
   ) {
     super(message);
     this.name = "S3DeleteError";
@@ -62,10 +62,17 @@ class S3DeleteError extends Error {
 /**
  * **[Reviews]**
  * **<🧠 Service>**
- * ***createReviewSvc***
  * 리뷰 생성 → 이미지 파일명 저장 → 사진 목록 포함 반환
  * (동일 식당에 대한 중복 리뷰 허용)
- * @param {{ userId:number, restaurantId:number, content:string, imageKeys?:string[], score:number }} params
+ * @param {{
+ *   userId:number,
+ *   restaurantId:number,
+ *   content:string,
+ *   imageKeys?:string[],
+ *   score:number,                // 0~5
+ *   detailFeedback?:string|null,
+ *   menuId?:number|null          // ✅ 단일 메뉴 아이디
+ * }} params
  * @returns {Promise<{review:Object, photos:Array}>}
  */
 export const createReviewSvc = async ({
@@ -73,9 +80,9 @@ export const createReviewSvc = async ({
   restaurantId,
   content,
   imageKeys = [],
-  score, // ⭐ 필수 (0~5)
+  score,
   detailFeedback = null,
-  menuIds = [],
+  menuId = null, // ✅ 단일
 }) => {
   // 1) 식당 존재 확인
   const restaurant = await findRestaurantByIdRepo(restaurantId);
@@ -92,28 +99,28 @@ export const createReviewSvc = async ({
     detailFeedback,
   });
 
-  // ✅ menuIds 검증 후 연결
-  let linkedMenuNames = [];
-  if (Array.isArray(menuIds) && menuIds.length) {
+  // 3) menuId 검증 후 연결 (존재하고 해당 식당 소속일 때만)
+  if (Number.isInteger(menuId) && menuId > 0) {
     const menus = await findMenusByIdsForRestaurantRepo({
       restaurantId,
-      ids: menuIds,
+      ids: [menuId], // 함수명 호환용: 배열로 전달
     });
-    const validIds = menus.map((m) => m.id);
-    if (validIds.length) {
-      await createReviewMenusRepo({ reviewId: created.id, menuIds: validIds });
-      linkedMenuNames = menus.map((m) => m.name);
+    const validId = menus.length ? menus[0].id : null;
+    if (validId) {
+      await createReviewMenusRepo({
+        reviewId: created.id,
+        menuIds: [validId], // 함수명 호환용: 배열로 전달
+      });
     }
   }
 
-  // 3) 이미지(파일명) 저장
+  // 4) 이미지(파일명) 저장
   if (imageKeys.length) {
     await createReviewPhotosByKeysRepo({ reviewId: created.id, imageKeys });
   }
 
   // 5) 4.0 이상이면 스탬프 적립 이벤트 발행
   if (typeof score === "number" && score >= 4) {
-    // 필요 시 reviewId까지 함께 전달
     eventEmitter.emit("REQUEST_ADD_STAMP", {
       userId,
       restaurantId,
@@ -122,17 +129,14 @@ export const createReviewSvc = async ({
 
   // 6) 사진 목록 조회
   const photos = await listPhotosByReviewIdRepo(created.id);
-  return { review: created, photos, menuNames: linkedMenuNames };
+  return { review: created, photos };
 };
 
 /**
  * **[Reviews]**
  * **<🧠 Service>**
- * ***deleteReviewWithFilesSvc***
  * S3의 모든 리뷰 이미지 삭제 성공 시에만 DB에서 ReviewPhoto → Review 순으로 삭제
  * (사진과 리뷰 글 **동시에** 삭제 규칙)
- * @param {{ userId:number, reviewId:number }} params
- * @returns {Promise<{id:number}>}
  */
 export const deleteReviewWithFilesSvc = async ({ userId, reviewId }) => {
   // 1) 존재/소유권 확인
@@ -147,15 +151,13 @@ export const deleteReviewWithFilesSvc = async ({ userId, reviewId }) => {
   }
 
   // 2) 현재 사진 목록
-  const photos = await listPhotosByReviewIdRepo(reviewId); // [{ id, imageName }, ...]
-  const menuNamesForResp = Array.isArray(linkedMenus)
-    ? linkedMenus.map((m) => m.name)
-    : [];
+  const photos = await listPhotosByReviewIdRepo(reviewId);
+
   // 3) S3에서 먼저 모두 삭제 (하나라도 실패하면 전체 실패)
   const TYPE_REVIEW = 1;
   if (photos.length) {
     const results = await Promise.allSettled(
-      photos.map((p) => deleteFromS3(p.imageName, TYPE_REVIEW))
+      photos.map((p) => deleteFromS3(p.imageName, TYPE_REVIEW)),
     );
     const failed = results.find((r) => r.status === "rejected");
     if (failed) {
@@ -183,10 +185,7 @@ export const deleteReviewWithFilesSvc = async ({ userId, reviewId }) => {
 /**
  * **[Reviews]**
  * **<🧠 Service>**
- * ***listMyReviewsSvc***
  * 내 리뷰 목록(페이지네이션)
- * @param {{ userId:number, page:number, size:number }} params
- * @returns {Promise<Array<Object>>}
  */
 export const listMyReviewsSvc = async ({ userId, page, size }) => {
   return listMyReviewsRepo({ userId, page, size });
