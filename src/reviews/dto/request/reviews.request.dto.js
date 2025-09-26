@@ -4,7 +4,7 @@ import { InvalidInputValueError } from "../../../error.js";
  * **[Review]**
  * **<🧺⬇️ Request DTO>**
  * 리뷰 생성
- * body: { content: string, imageKeys?: string[] | string, score: number(0~5), detailFeedback?: string }
+ * body: { content: string, imageKeys?: string[] | string, score: number(0~5), detailFeedback?: string, menuId?: number|string|string[] }
  * path: /restaurants/:id/reviews
  */
 export const parseCreateReviewRequest = (req) => {
@@ -12,7 +12,7 @@ export const parseCreateReviewRequest = (req) => {
   if (!Number.isInteger(restaurantId) || restaurantId <= 0) {
     throw new InvalidInputValueError(
       "restaurantId가 올바르지 않습니다.",
-      req.params
+      req.params,
     );
   }
 
@@ -21,41 +21,40 @@ export const parseCreateReviewRequest = (req) => {
     throw new InvalidInputValueError("인증이 필요합니다.", {});
   }
 
-  const { content, imageKeys, score, detailFeedback } = req.body ?? {};
+  // ✅ req.body 구조 분해
+  const { content, imageKeys, score, detailFeedback, menuId } = req.body ?? {};
 
   // ✅ score
   if (score === undefined) {
     throw new InvalidInputValueError("score는 필수입니다.(0~5)", req.body);
   }
-  const s = Number(score);
-  if (!Number.isFinite(s) || s < 0 || s > 5) {
+  const normScore = Number(score);
+  if (!Number.isFinite(normScore) || normScore < 0 || normScore > 5) {
     throw new InvalidInputValueError("score는 0~5 사이여야 합니다.", req.body);
   }
-  const normScore = s;
 
   // ✅ content
   const text = typeof content === "string" ? content.trim() : "";
   if (text.length < 1 || text.length > 1000) {
     throw new InvalidInputValueError(
       "content는 1~1000자여야 합니다.",
-      req.body
+      req.body,
     );
   }
 
   // ✅ detailFeedback (선택)
-  // DB 스키마: review.detailFeedback (TEXT)
   let detail = "";
   if (typeof detailFeedback === "string") {
     detail = detailFeedback.trim();
     if (detail.length > 2000) {
       throw new InvalidInputValueError(
         "detailFeedback는 최대 2000자입니다.",
-        req.body
+        req.body,
       );
     }
   }
 
-  // ✅ imageKeys: 문자열/배열 모두 허용 → 파일명만 추출, 50자 제한, 최대 5개
+  // ✅ imageKeys (문자열/배열 모두 허용) → 파일명만, 최대 5개, 각 50자 제한
   let keys = [];
   if (typeof imageKeys === "string") {
     keys = imageKeys
@@ -69,19 +68,21 @@ export const parseCreateReviewRequest = (req) => {
   }
   keys = keys.map((k) => k.slice(0, 50)).slice(0, 5);
 
-  // menuNames : 문자열/배열 모두 허용
-  let parsedMenuIds = [];
-  if (typeof menuIds === "string") {
-    parsedMenuIds = menuIds
-      .split(",")
-      .map((v) => Number(v))
-      .filter((n) => Number.isInteger(n) && n > 0);
-  } else if (Array.isArray(menuIds)) {
-    parsedMenuIds = menuIds
-      .map((v) => Number(v))
-      .filter((n) => Number.isInteger(n) && n > 0);
+  // ✅ menuId (문자열/배열 허용) → 단일 유효 숫자 1개만 저장
+  let parsedMenuId = null;
+  if (typeof menuId === "string") {
+    parsedMenuId =
+      menuId
+        .split(",")
+        .map((v) => Number(v))
+        .find((n) => Number.isInteger(n) && n > 0) ?? null;
+  } else if (Array.isArray(menuId)) {
+    parsedMenuId =
+      menuId.map((v) => Number(v)).find((n) => Number.isInteger(n) && n > 0) ??
+      null;
+  } else if (Number.isInteger(Number(menuId)) && Number(menuId) > 0) {
+    parsedMenuId = Number(menuId);
   }
-  parsedMenuIds = Array.from(new Set(parsedMenuIds)).slice(0, 20);
 
   return {
     userId,
@@ -89,8 +90,8 @@ export const parseCreateReviewRequest = (req) => {
     content: text,
     imageKeys: keys,
     score: normScore,
-    detailFeedback: detail || null, // 없으면 null
-    menuIds: parsedMenuIds,
+    detailFeedback: detail || null,
+    menuId: parsedMenuId, // ✅ 항상 포함 (없으면 null)
   };
 };
 
@@ -104,7 +105,7 @@ export const parseDeleteMyReviews = (req) => {
   if (!Number.isInteger(reviewId) || reviewId <= 0) {
     throw new InvalidInputValueError(
       "reviewId가 올바르지 않습니다.",
-      req.params
+      req.params,
     );
   }
   return { reviewId };
