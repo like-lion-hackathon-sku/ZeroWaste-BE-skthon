@@ -34,7 +34,10 @@ export const findReviewByUserAndRestaurantRepo = async ({
 };
 
 /* ✅ 식당 소속 메뉴 검증: menuIds -> 그 식당의 실제 메뉴만 반환 */
-export const findMenusByIdsForRestaurantRepo = async ({ restaurantId, ids }) => {
+export const findMenusByIdsForRestaurantRepo = async ({
+  restaurantId,
+  ids,
+}) => {
   if (!ids?.length) return [];
   return prisma.menu.findMany({
     where: { restaurantId, id: { in: ids } },
@@ -229,6 +232,7 @@ export const listMyReviewsRepo = async ({ userId, page, size }) => {
         include: { menu: { select: { name: true } } },
       },
       user: { select: { nickname: true } },
+      restaurant: { select: { id: true, name: true } },
     },
   });
 };

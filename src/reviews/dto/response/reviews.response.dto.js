@@ -49,7 +49,7 @@ export const mapReview = (review, photos = []) => {
     detailFeedback: review.detailFeedback ?? null,
     created_at: review.createdAt, // 프론트 요구: snake_case
     images: photos.map((p) => p.imageName), // 파일명만 전달
-   menus: Array.isArray(menuNames) ? menuNames : [],
+    menus: Array.isArray(menuNames) ? menuNames : [],
   };
 };
 
@@ -68,6 +68,8 @@ export const mapMyReview = (review) => {
     id: review.id,
     reviewId: review.id,
     restaurantId: review.restaurantId,
+    // 식당 이름 추가
+    restaurantName: review.restaurantName?.name ?? null,
     userId: review.userId,
     nickname: review.user?.nickname ?? null,
     content: review.content,
