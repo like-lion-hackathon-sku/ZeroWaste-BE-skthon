@@ -49,6 +49,7 @@ export const mapReview = (review, photos = []) => {
     detailFeedback: review.detailFeedback ?? null,
     created_at: review.createdAt, // 프론트 요구: snake_case
     images: photos.map((p) => p.imageName), // 파일명만 전달
+    menus: Array.isArray(menuNames) ? menuNames : [],
   };
 };
 
@@ -59,10 +60,16 @@ export const mapReview = (review, photos = []) => {
  * 내 리뷰 목록의 각 원소 매핑
  */
 export const mapMyReview = (review) => {
+  const menus = Array.isArray(review.reviewMenu)
+    ? review.reviewMenu.map((rm) => rm?.menu?.name).filter(Boolean)
+    : [];
+
   return {
     id: review.id,
     reviewId: review.id,
     restaurantId: review.restaurantId,
+    // 식당 이름 추가
+    restaurantName: review.restaurantName?.name ?? null,
     userId: review.userId,
     nickname: review.user?.nickname ?? null,
     content: review.content,
@@ -73,6 +80,7 @@ export const mapMyReview = (review) => {
     images: Array.isArray(review.reviewPhoto)
       ? review.reviewPhoto.map((p) => p.imageName) // 파일명만 전달
       : [],
+    menus,
   };
 };
 
