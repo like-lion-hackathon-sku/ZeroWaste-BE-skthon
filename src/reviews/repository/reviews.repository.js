@@ -256,8 +256,12 @@ export const listMyReviewsRepo = async ({ userId, page, size }) => {
         orderBy: { id: "asc" },
       },
       // 메뉴명 포함
+      // 🔒 menuId를 확실히 포함 (필요시 메뉴명도 선택)
       reviewMenu: {
-        include: { menu: { select: { name: true } } },
+        select: {
+          menuId: true, // ← 이게 핵심
+          menu: { select: { name: true } },
+        },
       },
       user: { select: { nickname: true } },
       restaurant: { select: { id: true, name: true } },
