@@ -21,17 +21,17 @@ export const parseCreateReviewRequest = (req) => {
     throw new InvalidInputValueError("인증이 필요합니다.", {});
   }
 
+  // ✅ req.body 구조 분해
   const { content, imageKeys, score, detailFeedback, menuId } = req.body ?? {};
 
   // ✅ score
   if (score === undefined) {
     throw new InvalidInputValueError("score는 필수입니다.(0~5)", req.body);
   }
-  const s = Number(score);
-  if (!Number.isFinite(s) || s < 0 || s > 5) {
+  const normScore = Number(score);
+  if (!Number.isFinite(normScore) || normScore < 0 || normScore > 5) {
     throw new InvalidInputValueError("score는 0~5 사이여야 합니다.", req.body);
   }
-  const normScore = s;
 
   // ✅ content
   const text = typeof content === "string" ? content.trim() : "";
@@ -54,7 +54,7 @@ export const parseCreateReviewRequest = (req) => {
     }
   }
 
-  // ✅ imageKeys
+  // ✅ imageKeys (문자열/배열 모두 허용) → 파일명만, 최대 5개, 각 50자 제한
   let keys = [];
   if (typeof imageKeys === "string") {
     keys = imageKeys
@@ -68,19 +68,18 @@ export const parseCreateReviewRequest = (req) => {
   }
   keys = keys.map((k) => k.slice(0, 50)).slice(0, 5);
 
-  // ✅ menuId: 문자열/배열 모두 허용 → 단일 숫자만 저장
+  // ✅ menuId (문자열/배열 허용) → 단일 유효 숫자 1개만 저장
   let parsedMenuId = null;
   if (typeof menuId === "string") {
-    const nums = menuId
-      .split(",")
-      .map((v) => Number(v))
-      .filter((n) => Number.isInteger(n) && n > 0);
-    parsedMenuId = nums.length > 0 ? nums[0] : null;
+    parsedMenuId =
+      menuId
+        .split(",")
+        .map((v) => Number(v))
+        .find((n) => Number.isInteger(n) && n > 0) ?? null;
   } else if (Array.isArray(menuId)) {
-    const nums = menuId
-      .map((v) => Number(v))
-      .filter((n) => Number.isInteger(n) && n > 0);
-    parsedMenuId = nums.length > 0 ? nums[0] : null;
+    parsedMenuId =
+      menuId.map((v) => Number(v)).find((n) => Number.isInteger(n) && n > 0) ??
+      null;
   } else if (Number.isInteger(Number(menuId)) && Number(menuId) > 0) {
     parsedMenuId = Number(menuId);
   }
@@ -92,7 +91,7 @@ export const parseCreateReviewRequest = (req) => {
     imageKeys: keys,
     score: normScore,
     detailFeedback: detail || null,
-    menuId: parsedMenuId,
+    menuId: parsedMenuId, // ✅ 항상 포함 (없으면 null)
   };
 };
 

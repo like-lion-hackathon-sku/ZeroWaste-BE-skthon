@@ -28,6 +28,15 @@ export const toPublicUrl = (keyOrUrl, prefix = REVIEW_PREFIX) => {
   return base ? `${base}/${fullKey}` : fullKey;
 };
 
+/** ReviewMenu[0]에서 menuId 추출 */
+function firstMenuId(review) {
+  if (Array.isArray(review?.reviewMenu) && review.reviewMenu.length > 0) {
+    const id = review.reviewMenu[0]?.menuId;
+    return Number.isInteger(id) && id > 0 ? id : null;
+  }
+  return null;
+}
+
 /**
  * **[Reviews]**
  * **<🧺⬆️ Response DTO>**
@@ -46,8 +55,7 @@ export const mapReview = (review, photos = []) => {
     detailFeedback: review.detailFeedback ?? null,
     created_at: review.createdAt, // 프론트 요구: snake_case
     images: photos.map((p) => p.imageName), // 파일명만 전달
-    menuId: review.menuId ?? null,
-    menuName: review.menu?.name ?? null,
+    menuId: firstMenuId(review), // ✅ 스키마 기준
   };
 };
 
@@ -58,20 +66,11 @@ export const mapReview = (review, photos = []) => {
  * 내 리뷰 목록의 각 원소 매핑
  */
 export const mapMyReview = (review) => {
-  // reviewMenu가 배열일 수 있으니 첫 번째 메뉴만 사용
-  let menuId = null;
-  let menuName = null;
-  if (Array.isArray(review.reviewMenu) && review.reviewMenu.length > 0) {
-    const first = review.reviewMenu[0];
-    menuId = first?.menuId ?? null;
-    menuName = first?.menu?.name ?? null;
-  }
-
   return {
     id: review.id,
     reviewId: review.id,
     restaurantId: review.restaurantId,
-    restaurantName: review.restaurantName?.name ?? null, // 식당 이름 추가
+    restaurantName: review.restaurant?.name ?? null, // ✅ 스키마 기준
     userId: review.userId,
     nickname: review.user?.nickname ?? null,
     content: review.content,
@@ -82,8 +81,7 @@ export const mapMyReview = (review) => {
     images: Array.isArray(review.reviewPhoto)
       ? review.reviewPhoto.map((p) => p.imageName) // 파일명만 전달
       : [],
-    menuId,
-    menuName,
+    menuId: firstMenuId(review), // ✅ 스키마 기준
   };
 };
 
