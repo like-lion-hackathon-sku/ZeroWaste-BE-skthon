@@ -36,13 +36,27 @@ export const findReviewByUserAndRestaurantRepo = async ({
 /* ✅ 식당 소속 메뉴 검증: menuIds -> 그 식당의 실제 메뉴만 반환 */
 export const findMenusByIdsForRestaurantRepo = async ({
   restaurantId,
+  menuId,
   ids,
 }) => {
-  if (!ids?.length) return [];
-  return prisma.menu.findMany({
-    where: { restaurantId, id: { in: ids } },
-    select: { id: true, name: true },
-  });
+  // 단일 menuId 우선
+  if (Number.isInteger(menuId) && menuId > 0) {
+    const one = await prisma.menu.findFirst({
+      where: { restaurantId, id: menuId },
+      select: { id: true, name: true },
+    });
+    return one ? [one] : [];
+  }
+
+  // 과거 호환: ids 배열
+  if (Array.isArray(ids) && ids.length > 0) {
+    return prisma.menu.findMany({
+      where: { restaurantId, id: { in: ids } },
+      select: { id: true, name: true },
+    });
+  }
+
+  return [];
 };
 
 /**
@@ -53,19 +67,33 @@ export const findMenusByIdsForRestaurantRepo = async ({
  * @param {{ reviewId:number, menuIds:number[] }} params
  * @returns {Promise<{count:number}>}
  */
-export const createReviewMenusRepo = async ({ reviewId, menuIds }) => {
-  if (!menuIds?.length) return { count: 0 };
-  const rows = menuIds.map((menuId) => ({
+export const createReviewMenusRepo = async ({ reviewId, menuId, menuIds }) => {
+  // 단일 menuId 우선
+  if (Number.isInteger(menuId) && menuId > 0) {
+    await prisma.reviewMenu.create({
+      data: { reviewId, menuId, leftoverRatio: 1 },
+    });
+    return { count: 1 };
+  }
+
+  // 과거 호환: menuIds 배열
+  const validIds = Array.isArray(menuIds)
+    ? menuIds.filter((n) => Number.isInteger(n) && n > 0)
+    : [];
+
+  if (validIds.length === 0) return { count: 0 };
+
+  const rows = validIds.map((id) => ({
     reviewId,
-    menuId,
-    leftoverRatio: 1, // 스키마에 default가 없으므로 초기값으로 1 지정
+    menuId: id,
+    leftoverRatio: 1,
   }));
+
   return prisma.reviewMenu.createMany({
     data: rows,
     skipDuplicates: true,
   });
 };
-
 /**
  * **[Reviews]**
  * **<🗄️ Repository>**

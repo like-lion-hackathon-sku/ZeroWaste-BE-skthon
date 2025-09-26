@@ -43,7 +43,8 @@ function firstMenuId(review) {
  * ***mapReview***
  * 서비스의 { review, photos } 결과를 응답 스펙으로 매핑
  */
-export const mapReview = (review, photos = []) => {
+// response dto
+export const mapReview = (review, photos = [], overrideMenuId = null) => {
   return {
     id: review.id,
     reviewId: review.id,
@@ -53,9 +54,9 @@ export const mapReview = (review, photos = []) => {
     score: review.score,
     feedback: review.feedback ?? null,
     detailFeedback: review.detailFeedback ?? null,
-    created_at: review.createdAt, // 프론트 요구: snake_case
-    images: photos.map((p) => p.imageName), // 파일명만 전달
-    menuId: firstMenuId(review), // ✅ 스키마 기준
+    created_at: review.createdAt,
+    images: photos.map((p) => p.imageName),
+    menuId: overrideMenuId ?? firstMenuId(review), // ✅ 우선 override 사용
   };
 };
 

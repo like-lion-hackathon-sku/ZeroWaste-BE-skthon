@@ -40,7 +40,7 @@ export const handleCreateReviews = async (req, res, next) => {
               content: { type: "string", example: "정말 맛있었어요!" },
               score:   { type: "number", example: 4.0, minimum: 0, maximum: 5 },
               images:  { type: "array", items: { type: "string", format: "binary" } },
-              menuIds: { type: "array", items: { type: "integer" }, example: [3, 7] }
+              menuId:  { type: "integer", example: 3 }
             },
             required: ["content", "score"]
           }
@@ -60,7 +60,7 @@ export const handleCreateReviews = async (req, res, next) => {
           score:        { type: "number", example: 4.0 },
           created_at:   { type: "string", example: "2025-09-11T04:12:34.000Z" },
           images:       { type: "array", items: { type: "string" }, example: ["a1b2c3.jpg","d4e5f6.png"] },
-          menuIds:      { type: "array", items: { type: "integer" }, example: [3, 7] }
+          menuId:       { type: "integer", example: 3 }
         }
       }}}
     }
@@ -82,20 +82,20 @@ export const handleCreateReviews = async (req, res, next) => {
       imageKeys,
       score,
       detailFeedback,
-      menuIds,
+      menuId, // ✅ 단일 메뉴 아이디
     } = parsed;
 
-    const { review, photos, menuNames } = await createReviewSvc({
+    const { review, photos } = await createReviewSvc({
       userId,
       restaurantId,
       content,
       imageKeys,
       score,
       detailFeedback,
-      menuIds, // ✅ 전달
+      menuId,
     });
 
-    return res.status(201).json(mapReview(review, photos, menuNames)); // ✅ 메뉴 이름 배열 내려줌
+    return res.status(201).json(mapReview(review, photos, menuId)); // ✅ 메뉴명 배열 제거, mapReview는 menuId만 포함
   } catch (err) {
     return next(err);
   }
@@ -157,7 +157,8 @@ export const handleGetMyReviews = async (req, res, next) => {
                 content:{ type:"string", example:"맛있었어요." },
                 score:{ type:"number", example:4.0 },
                 created_at:{ type:"string", example:"2025-09-11T04:12:34.000Z" },
-                images:{ type:"array", items:{ type:"string" }, example:["a1b2c3.jpg"] }
+                images:{ type:"array", items:{ type:"string" }, example:["a1b2c3.jpg"] },
+                menuId:{ type:"integer", example:3 } // ✅ 응답에도 menuId 포함
               }
             }
           }
@@ -169,7 +170,7 @@ export const handleGetMyReviews = async (req, res, next) => {
     const { page, size } = parseGetMyReviews(req);
     const userId = req.payload.id;
     const reviews = await listMyReviewsSvc({ userId, page, size });
-    return res.status(200).json(reviews.map(mapMyReview)); // mapMyReview가 메뉴명 포함해서 매핑
+    return res.status(200).json(reviews.map(mapMyReview)); // mapMyReview는 menuId 포함
   } catch (err) {
     return next(err);
   }
